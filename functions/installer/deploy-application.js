@@ -34,11 +34,11 @@ exports.handler = async function(context, event, callback) {
   console.time(THIS);
   assertLocalhost(context);
   try {
-    const application_name = await getParam(context, 'APPLICATION_NAME');
+    assert(event.configuration.APPLICATION_NAME, '.env file does not contain APPLICATION_NAME variable!!!');
+    const application_name = event.configuration.APPLICATION_NAME;
 
-    console.log(THIS, 'event:', event);
     console.log(THIS, `Deploying Twilio service ... ${application_name}`);
-    const environmentVariables = event.configuration ? event.configuration : {};
+    const environmentVariables = event.configuration;
     console.log(THIS, 'configuration:', environmentVariables);
     const service_sid = await deployService(context, environmentVariables);
     console.log(THIS, `Deployed: ${service_sid}`);
@@ -128,6 +128,7 @@ async function deployService(context, envrionmentVariables = {}) {
   };
   console.log('deployOptions.env:', deployOptions.env);
 
+  context['APPLICATION_NAME'] = envrionmentVariables.APPLICATION_NAME;
   let service_sid = await getParam(context, 'SERVICE_SID');
   if (service_sid) {
     // update service

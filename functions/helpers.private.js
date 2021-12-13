@@ -289,8 +289,10 @@ async function getAllParams(context) {
   // keys defined in getParam function above
   const keys_derived = [
     'IS_LOCALHOST',
-    'SERVER_START_TIMESTAMP',
   ];
+
+  // to force saving of 'secret'
+  await getParam(context, 'TWILIO_API_KEY_SID');
 
   const keys_all = keys_context.concat(keys_derived).sort();
   try {

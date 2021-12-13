@@ -13,8 +13,15 @@ $(document).ready(async function () {
 });
 
 
-// -----------------------------------------------------------------------------
-async function addVariable(variable, current) {
+/* -----------------------------------------------------------------------------
+ * add configuration variable entry
+ *
+ * input:
+ * - variable: see https://www.npmjs.com/package/configure-env
+ */
+async function addVariable(variable, currentValue = null) {
+    console.log(variable.key, currentValue);
+
     if (variable.key === 'TWILIO_PHONE_NUMBER') {
         // twilio phone number dropdown is handled outside, TODO: move inside
         variableInput.push({
@@ -24,9 +31,6 @@ async function addVariable(variable, current) {
         });
         return;
     }
-    console.log(variable.key, current ? current.value : null);
-
-    if (! variable.configurable) return; // skip inconfiguration variables
 
     const originalElement = $('div.clone-original');
 
@@ -42,7 +46,7 @@ async function addVariable(variable, current) {
     clonedElement.find('input').attr("id", css_id);
     clonedElement.find('input').attr("name", css_id);
 
-    const value = current ? current.value : (variable.default ? variable.default: '');
+    const value = currentValue ? currentValue : (variable.default ? variable.default: '');
     clonedElement.find('input').val(value);
     // clonedElement.find('input').attr("placeholder", (variable.default == null ? ' ' : variable.default));
     clonedElement.find('.tooltip').text(variable.description);
@@ -54,14 +58,22 @@ async function addVariable(variable, current) {
     };
     clonedElement.find('input').attr("type", (formats.hasOwnProperty(variable.format) ? formats[variable.format] : "text"));
 
-    if (variable.required === false) clonedElement.prop('disabled', true);
-    if (variable.configurable === true) {
+    variableInput.push({
+        key: variable.key,
+        required: variable.required,
+        configurable: variable.configurable,
+        css_id: `#${css_id}`,
+        value: v.default ? v.default : v.value,
+        isValid: true,
+    });
+    if (variable.configurable) {
         clonedElement.show();
-        variableInput.push({
-            key: variable.key,
-            required: variable.required,
-            css_id: `#${css_id}`,
-        });
+    // } else {
+    //     clonedElement.show();
+    //     clonedElement.prop('disabled', true);
+    //     clonedElement.find('input').prop('disabled', true);
+    //     clonedElement.find('.configure-label').css('color','#aaaaaa');
+    //     clonedElement.find('input').css('color','#aaaaaa');
     }
     // delete the original div after cloning
     //originalElement.remove();
@@ -82,6 +94,7 @@ async function populate() {
         const info = await response.json();
 
         console.log(THIS, 'server returned:', info);
+
         $('#account_name').val(info.twilioAccountName);
 
         const phoneList = info.twilioPhoneNumbers;
@@ -93,7 +106,8 @@ async function populate() {
         });
 
         for (v of info.configurationVariables) {
-          await addVariable(v, info.configurationValues.find(_v => _v.key === v.key));
+            if (v.key ==='TWILIO_PHONE_NUMBER') continue; // special-handling for twilio phone number
+            await addVariable(v, v.value);
         }
 
     } catch (err) {
@@ -198,6 +212,7 @@ function validateInput() {
     //console.log(THIS, Object.keys(variableInput));
     let hasValidationError = false;
     for (v of variableInput) {
+        if (! v.configurable) continue; // skip non-configurable variables
         console.log(v);
         const inputValue = $(v.css_id).val();
         console.log('input is', inputValue);
@@ -230,13 +245,17 @@ function deployApplication(e) {
 
     const configuration = {};
     for (i of input) {
+        if (!i.value) continue;
         configuration[i.key] = i.value;
     }
-
+    console.log(configuration);
+    console.log(JSON.stringify(configuration));
 //    $('#service-deploy .button').addClass('loading');
 //    $('.service-loader.button-loader').show();
     $('#service-deploy-button').prop('disabled', true);
     $('#service-deploying').show();
+
+//    return;
 
     fetch('/installer/deploy-application', {
         method: 'POST',
@@ -250,7 +269,7 @@ function deployApplication(e) {
           $('#service-deploying').hide();
           $('#service-deploy-button').prop('disabled', false);
           console.log(THIS, 'successfully deployed');
-//          checkApplication();
+          checkApplication();
       })
       .catch ((err) => {
           console.log(THIS, err);
