@@ -96,7 +96,7 @@ async function getParam(context, key) {
 
       case 'SERVICE_SID': {
         // will throw error when running on localhost, so lookup by name if localhost
-        if (context.SERVICE_SID) return context.SERVICE_SID;
+        if (! isLocalhost(context) && context.SERVICE_SID) return context.SERVICE_SID;
 
         const services = await client.serverless.services.list();
         const service = services.find(s => s.uniqueName === context.APPLICATION_NAME);
@@ -106,7 +106,7 @@ async function getParam(context, key) {
 
       case 'ENVIRONMENT_SID': {
         // will throw error when running on localhost, so lookup by name if localhost
-        if (context.ENVIRONMENT_SID) return context.ENVIRONMENT_SID;
+        if (! isLocalhost(context) && context.ENVIRONMENT_SID) return context.ENVIRONMENT_SID;
 
         const service_sid = await getParam(context, 'SERVICE_SID');
         if (service_sid === null) {
