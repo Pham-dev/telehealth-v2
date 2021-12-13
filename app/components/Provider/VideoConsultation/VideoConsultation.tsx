@@ -70,7 +70,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         )}
       >
 
-        <div className="absolute right-6 w-48 flex flex-col">
+        <div className="absolute right-6 min-w-[12rem] w-[15%] flex flex-col z-20">
           {callState.providerParticipant &&
             <VideoParticipant
               name={providerName}
