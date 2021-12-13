@@ -35,14 +35,17 @@ export const initialSettings: Settings = {
 export interface ParticipantRoomState {
   patientName: string;
   providerName: string;
+  visitorName?: string // todo change to array of visitors
 }
 
 export interface ProviderRoomState extends ParticipantRoomState {
   patientParticipant: RemoteParticipant;
   providerParticipant: LocalParticipant;
+  visitorParticipant?: RemoteParticipant; // todo change to array of visitors
 }
 
 export interface PatientRoomState extends ParticipantRoomState {
   patientParticipant: LocalParticipant;
   providerParticipant: RemoteParticipant;
+  visitorParticipant?: RemoteParticipant; // todo change to array of visitors
 }

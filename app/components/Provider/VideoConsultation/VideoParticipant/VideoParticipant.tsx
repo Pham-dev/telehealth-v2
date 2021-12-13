@@ -110,7 +110,7 @@ export const VideoParticipant = ({
   return (
     <div className={joinClasses(
       'mx-auto relative group',
-      fullScreen ? '' : 'w-max'
+      fullScreen ? 'h-full w-full' : 'w-max'
     )}>
       {!isSelf && (
         <div className="absolute top-0 h-[100px] text-right w-full flex justify-end group-hover:bg-gradient-to-b from-[#000000B0] via-[#00000000] to-[#00000000] z-10">

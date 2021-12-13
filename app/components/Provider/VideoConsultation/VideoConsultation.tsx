@@ -33,8 +33,10 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   const [callState, setCallState] = useState<ProviderRoomState>({
     patientName: null,
     providerName: null,
+    visitorName: null,
     patientParticipant: null,
-    providerParticipant: null
+    providerParticipant: null,
+    visitorParticipant: null,
   });
 
   useEffect(() => {
@@ -44,59 +46,65 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
           ...prev,
           providerParticipant: room!.localParticipant,
           patientParticipant: participants.find(p => p.identity != room!.localParticipant.identity),
+          visitorParticipant: participants[1]
         }
       })
     }
   }, [participants, room]);
 
-  const styles = {
-    width: '89%'
-  }
-  
   const toggleRecordingCb = useCallback(async () => 
     await roomService.toggleRecording(user, room.sid, isRecording ? 'stop' : 'start'),
     [user, room, isRecording]);
-  
+
+  const titleStyles = {left: '45%'};
+  const styles = {paddingBottom: '10px'}
   return (
     <div className="relative h-full">
-      {/*<h1 className="absolute text-white text-2xl font-bold top-10 left-32">
+      <h1 className="absolute text-white text-2xl font-bold top-4 z-10" style={titleStyles}>
         Owl Health
-      </h1>*/}
+      </h1>
       <div
         className={joinClasses(
           'bg-secondary flex flex-col h-full w-full items-center',
           isRecording ? 'border-[10px] border-primary' : 'p-[10px]'
         )}
       >
-        <div className="h-full" style={styles}>
-          {callState.patientParticipant &&
+
+        <div className="absolute right-6 w-48 flex flex-col">
+          {callState.providerParticipant &&
             <VideoParticipant
-              name="Sarah Coopers"
-              hasAudio
-              hasVideo
-              participant={callState.patientParticipant}
+              name={providerName}
+              hasAudio={isAudioEnabled}
+              hasVideo={isVideoEnabled}
+              isProvider
+              isSelf
+              participant={callState.providerParticipant}
               fullScreen
-            />
-          }
+            />}
+          {callState.visitorParticipant &&
+            <VideoParticipant
+              name='Invited Visitor'
+              hasAudio={isAudioEnabled}
+              hasVideo={isVideoEnabled}
+              isSelf
+              participant={callState.visitorParticipant}
+              fullScreen
+            />}
         </div>
 
-        <div className="flex-grow">
-          <div className="flex flex-col justify-evenly h-full mt-20">
-            <div className="absolute top-20 right-10">
-              {callState.providerParticipant && 
-                <VideoParticipant
-                  name={providerName}
-                  hasAudio={isAudioEnabled}
-                  hasVideo={isVideoEnabled}
-                  isProvider
-                  isSelf
-                  participant={callState.providerParticipant}
-                />}
-            </div>
-          </div>
+        <div className="w-2/3 h-full">
+            {callState.patientParticipant &&
+              <VideoParticipant
+                name="Sarah Coopers"
+                hasAudio
+                hasVideo
+                participant={callState.patientParticipant}
+                fullScreen
+              />
+            }
         </div>
         <VideoControls
-          containerClass="absolute bottom-16 mb-5 bg-[#FFFFFF4A] rounded-lg"
+          containerClass="absolute bottom-10 mb-5 bg-[#FFFFFF4A] rounded-lg"
           addParticipant={(event) =>
             setInviteModalRef(inviteModalRef ? null : event?.target)
           }
@@ -108,7 +116,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
           }
           toggleVideo={toggleVideoEnabled}
         />
-        <div className="mt-1 mb-3 absolute bottom-10">
+        <div className="absolute bottom-6">
           <PoweredByTwilio inverted />
         </div>
       </div>

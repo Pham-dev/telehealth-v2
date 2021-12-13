@@ -19,7 +19,8 @@ export interface VideoParticipantProps {
   isOverlap?: boolean;
   isSelf?: boolean;
   name: string;
-  participant: LocalParticipant | RemoteParticipant
+  participant: LocalParticipant | RemoteParticipant,
+  fullScreen?:boolean;
 }
 
 export const VideoParticipant = ({
@@ -30,6 +31,7 @@ export const VideoParticipant = ({
   isOverlap,
   isSelf,
   participant,
+  fullScreen
 }: VideoParticipantProps) => {
   const [showMutedBanner, setShowMutedBanner] = useState(null);
   const [isPinned, setIsPinned] = useState(false);
@@ -62,16 +64,20 @@ export const VideoParticipant = ({
     : null; 
 
    // TODO - move to tailwind config
-   const widthClass = isOverlap
+  let widthClass = isOverlap
    ? 'w-[92px]'
    : isProvider
    ? 'w-[405px]'
    : 'w-[274px]';
- const heightClass = isOverlap
-   ? 'h-[122px]'
-   : isProvider
-   ? 'h-[234px]'
-   : 'h-[364px]';
+  let heightClass = isOverlap
+     ? 'h-[122px]'
+     : isProvider
+     ? 'h-[234px]'
+     : 'h-[364px]';
+  if (fullScreen) {
+    widthClass = 'w-full';
+    heightClass = 'h-full';
+  }
 
   useEffect(() => {
     // toggleAudioEnabled() only works for local user

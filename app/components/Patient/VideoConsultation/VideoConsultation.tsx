@@ -30,8 +30,10 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   const [callState, setCallState] = useState<PatientRoomState>({
     patientName: null,
     providerName: null,
+    visitorName: null,
     patientParticipant: null,
-    providerParticipant: null
+    providerParticipant: null,
+    visitorParticipant: null
   });
 
   useEffect(() => {
@@ -40,7 +42,8 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         return {
           ...prev,
           patientParticipant: room!.localParticipant,
-          providerParticipant: participants.find(p => p.identity != room!.localParticipant.identity)
+          providerParticipant: participants.find(p => p.identity != room!.localParticipant.identity),
+          visitorParticipant: participants[1]
         }
       })
     }
@@ -62,13 +65,13 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
           <>
             <div className="flex">
               <div className="relative">
-              {callState.providerParticipant && <VideoParticipant
-                  name={visit.providerName}
-                  hasAudio
-                  hasVideo
-                  participant={callState.providerParticipant}
-                />}
-                <div className="absolute top-1 right-1">
+                {callState.providerParticipant && <VideoParticipant
+                    name={visit.providerName}
+                    hasAudio
+                    hasVideo
+                    participant={callState.providerParticipant}
+                  />}
+               <div className="absolute top-1 right-1 flex">
                 {callState.patientParticipant && <VideoParticipant
                     name={visit.patientName}
                     hasAudio={isAudioEnabled}
@@ -77,6 +80,13 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                     isSelf={true}
                     participant={callState.patientParticipant}
                   /> }
+                 {callState.visitorParticipant && <VideoParticipant
+                   name="Visitor"
+                   hasAudio={isAudioEnabled}
+                   hasVideo={isVideoEnabled}
+                   isOverlap
+                   participant={callState.visitorParticipant}
+                 /> }
                 </div>
                 <Button
                   className="absolute left-4 bottom-3"
@@ -99,7 +109,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
           <>
             <div className="flex-grow">
               <div className="flex flex-col justify-evenly h-full">
-              {callState.patientParticipant && <VideoParticipant
+                {callState.patientParticipant && !callState.visitorParticipant && <VideoParticipant
                   name={visit.patientName}
                   hasAudio={isAudioEnabled}
                   hasVideo={isVideoEnabled}
@@ -107,6 +117,28 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                   isProvider={false}
                   participant={callState.patientParticipant}
                 />}
+                {callState.visitorParticipant &&
+                  <div className='flex flex-grow w-[405px]'>
+                    <VideoParticipant
+                      name={visit.patientName}
+                      hasAudio={isAudioEnabled}
+                      hasVideo={isVideoEnabled}
+                      isSelf={true}
+                      isProvider={false}
+                      participant={callState.patientParticipant}
+                      fullScreen
+                    />
+                    <VideoParticipant
+                      name="Visitor"
+                      hasAudio={isAudioEnabled}
+                      hasVideo={isVideoEnabled}
+                      isOverlap
+                      isProvider={false}
+                      isSelf={false}
+                      participant={callState.visitorParticipant}
+                      fullScreen
+                    />
+                  </div>}
                 {callState.providerParticipant && <VideoParticipant
                   name={visit.providerName}
                   hasAudio
