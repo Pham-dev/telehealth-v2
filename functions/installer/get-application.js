@@ -70,25 +70,21 @@ exports.handler = async function (context, event, callback) {
         console.log(THIS, `found deployed application ${application_name}, retrieving variable values`);
         const environment_sid = await getParam(context, 'ENVIRONMENT_SID');
 
-        const keys = response.configurationVariables.map(v => { return v.key });
-        const allValues = await client.serverless
+        const values = await client.serverless
           .services(service_sid)
           .environments(environment_sid)
           .variables.list();
-        const values = allValues.map(v => {
-          return {
-            key: v.key,
-            value: v.value,
-          }
-        });
-
         console.log(THIS, `retrieved ${values.length} variable values`);
-        response.configurationValues = values;
-      } else {
-        response.configurationValues = [];
+        for(const v of values) {
+          const k = response.configurationVariables.find(e => e.key === v.key);
+          if (k) {
+            k['value'] = v.value;
+          }
+        }
       }
     }
 
+    //console.log(THIS, response);
     return callback(null, response);
 
   } catch (err) {
