@@ -27,6 +27,7 @@ async function addVariable(variable, currentValue = null) {
         variableInput.push({
             key: 'TWILIO_PHONE_NUMBER',
             required: variable.required,
+            configurable: variable.configurable,
             css_id: '#twilio_phone_number',
         });
         return;
@@ -106,7 +107,6 @@ async function populate() {
         });
 
         for (v of info.configurationVariables) {
-            if (v.key ==='TWILIO_PHONE_NUMBER') continue; // special-handling for twilio phone number
             await addVariable(v, v.value);
         }
 
