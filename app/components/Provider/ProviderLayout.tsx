@@ -20,7 +20,7 @@ import { ChatProvider } from "../Base/ChatProvider";
       }
     }, [getAudioAndVideoTracks, mediaError]);
     return (
-      user && (localTracks && localTracks.length > 0) &&
+      user && (localTracks && localTracks.length > 1) &&
       <>
         { props.children }
       </>

@@ -20,7 +20,7 @@ import useVideoContext from "../Base/VideoProvider/useVideoContext/useVideoConte
       }
     }, [getAudioAndVideoTracks, mediaError]);
     return (
-      visit && user && (localTracks && localTracks.length > 0) &&
+      visit && user && (localTracks && localTracks.length > 1) &&
       <>
         { props.children }
       </>
