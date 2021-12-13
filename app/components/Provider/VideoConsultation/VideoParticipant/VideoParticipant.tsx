@@ -188,7 +188,7 @@ export const VideoParticipant = ({
         )}
         <ParticipantTracks
           participant={isSelf ? mainParticipant : participant}
-          videoOnly
+          videoOnly={false}
           enableScreenShare={true}
           videoPriority={videoPriority}
           isLocalParticipant={mainParticipant === localParticipant}
