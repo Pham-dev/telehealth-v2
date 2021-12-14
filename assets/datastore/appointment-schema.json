@@ -67,6 +67,16 @@
         ]
       },
       "uniqueItems": true
+    },
+    "patient_id": {
+      "$id": "#root/patient_id",
+      "description": "unique identifier of patient",
+      "type": "string"
+    },
+    "provider_id": {
+      "$id": "#root/provider_id",
+      "description": "unique identifier of provider",
+      "type": "string"
     }
   }
 }
