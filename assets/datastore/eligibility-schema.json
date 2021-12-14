@@ -5,13 +5,25 @@
   "description": "Insurance eligibility validation & benefits copay",
   "type": "object",
   "required": [
-    "patient_id",
+    "insurer_id",
+    "subscriber_id",
+    "eligibility_status",
     "copay_usd"
   ],
   "properties": {
-    "patient_id": {
-      "$id": "#root/patient_id",
-      "description": "unique identifier of patient",
+    "insurer_id": {
+      "$id": "#root/insurer_id",
+      "description": "id for insurer organization",
+      "type": "string"
+    },
+    "subscriber_id": {
+      "$id": "#root/subscriber_id",
+      "description": "insurer assigned subscriber id",
+      "type": "string"
+    },
+    "eligibility_status": {
+      "$id": "#root/eligibility_status",
+      "description": "eligible|ineligible",
       "type": "string"
     },
     "copay_usd": {

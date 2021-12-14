@@ -74,4 +74,4 @@ After installation make sure to start Docker desktop.
 
 5. Launch the admnistration page by clicking 'Open Application' button.
 
-6. Terminate the docker container `hls-installer` in the docker dashboard.
+6. 'Stop' the docker container `hls-installer` in the docker dashboard.
