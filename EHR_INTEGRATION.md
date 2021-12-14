@@ -1,15 +1,39 @@
-#Telehealth EHR Integration Specification
+# Telehealth EHR Integration Guide & Specification
 
-[content json schema](assets/datastore/content.schema.json)
+For embedding Telehealth application into your patient/provider portal
+, please refer to [Telehealth Portal Integration Guide](PORTAL_INTEGRATION.md).
 
-Telehealth application can be integrated with EHR to <span style="color:magenta">pull</span>
-information about providers, patient, and telehealth appointments.
+Telehealth application is designed to operate directly integrated with your EHR access the following resources:
 
-Telehealth application is designed to fully operate by only pulling information from EHR for scheduled telehealth appointments.
+| Resources | Retrieve | Create |
+|-----------|----------|--------|
+|Appointment for telehealth visits| :heavy_check_mark:| :heavy_check_mark: |
+|Patient and patient's problem list (conditions) and medications| :heavy_check_mark:| :heavy_check_mark: |
+|Provider and on-call assignment to see on-demand telehealth visit patients| :heavy_check_mark:| |
+|Patient insurance eligibility validation and copay information| :heavy_check_mark:| |
+|Waiting room contents| :heavy_check_mark:| :heavy_check_mark: |
+
+Telehealth application ships with simulated EHR integration using sample EHR resources
+stored using [Twilio Sync](https://www.twilio.com/sync) Document Resources.
+These EHR resources are based on the [FHIR](http://hl7.org/fhir/) standard
+and define the minimum set of data elemented required for proper operation of the Telehealth application.
+
+
+
+While your EHR integration will be specific to your available integration methods
+that range from HL7 v2 message, to EHR Native API, to FHIR APIs.
+
+
+
+
+
+
 Therefore, we recommend integrating with your [FHIR](http://hl7.org/fhir/) server endpoint of your EHR implementation
 that should be available as part of continuing interoperability initiatives
 from [CMS](https://www.cms.gov/Regulations-and-Guidance/Guidance/Interoperability/index)
 and [HHS ONC for HIT](https://www.healthit.gov/isa/united-states-core-data-interoperability-uscdi).
+
+[content json schema](assets/datastore/content.schema.json)
 
 Additional custom EHR integrations will be needed to support on-demand telhealth appointments:
 
@@ -201,17 +225,11 @@ http://your-fhir-endpoint/fhir/MedicationStatement?parameter=value
 ```json
 {
   "resourceType": "Bundle",
-  "meta": {
-    "lastUpdated": "2014-08-18T01:43:30Z"
-  },
   "type": "searchset",                                // fixed to 'searchset'
   "total": <NumberofMedicationStatements>,
   "entry": [
     {
       "resourceType": "MedicationStatement",
-      "meta": {
-        "source": "<http://twilio.com | customer's FHIR endpoint url>"
-      },
       "medicationCodeableConcept": {
         "text": "<PatientMedication>"
       },
@@ -252,22 +270,24 @@ http://your-fhir-endpoint/fhir/Practitioner?parameter=value
 ```json
 {
   "resourceType": "Bundle",
-  "meta": {
-    "lastUpdated": "2014-08-18T01:43:30Z"
-  },
   "type": "searchset",                                // fixed to 'searchset'
   "total": <NumberofConditions>,
   "entry": [
     {
       "resourceType": "Condition",
-      "meta": {
-        "source": "<http://twilio.com | customer's FHIR endpoint url>"
-      },
       "clinicalStatus": {
         "coding": [
           {
             "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
             "code": "active"
+          }
+        ]
+      },
+      "category": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+            "code": "problem-list-item"               // fixed to 'problem-list-item'
           }
         ]
       },
@@ -283,6 +303,7 @@ http://your-fhir-endpoint/fhir/Practitioner?parameter=value
 ```
 - `.type` value from [Bundle Type](http://hl7.org/fhir/ValueSet/bundle-type)
 - `.entry[].clinicalStatus.coding[].code` value from [Condition Clinical Status Codes](http://terminology.hl7.org/CodeSystem/condition-clinical)
+- `.entry[].category.code[].code` value from [Condition Category Codes](http://terminology.hl7.org/CodeSystem/condition-category)
 
 </details>
 

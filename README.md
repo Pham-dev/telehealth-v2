@@ -1,4 +1,4 @@
-#Telehealth v2 Working Repo 
+# Telehealth v2 Working Repo 
 
 
 ## <a name="install"></a>Installation Information
@@ -60,17 +60,18 @@ After installation make sure to start Docker desktop.
     ```shell
     docker build --tag hls-installer https://github.com/bochoi-twlo/telehealth-v2.git#main
     ```
+
 2. Run the built docker image by executing below supplying your Twilio credentials from above
-   (replace `ACxxxxxxxx` and `yyyyyyyy` for `ACCOUNT_SID` and `AUTH_TOKEN`, respectively).
+   (replace `{YOUR_ACCOUNT_SID}` and `{YOUR_AUTH_TOKEN}` with your Twilio credentials Account SID and Auth token, respectively).
     ```shell
     docker run --name hls-installer --rm -p 3000:3000 \
-   -e ACCOUNT_SID=ACxxxxxxxx -e AUTH_TOKEN=yyyyyyyy -it hls-installer
+   -e ACCOUNT_SID={YOUR_ACCOUNT_SID} -e AUTH_TOKEN={YOUR_AUTH_TOKEN} -it hls-installer
     ```
 
 3. Open http://localhost:3000/installer.html using a broswer.
 
-
 4. Followig instructions in the installer to complete installation & configuration.
 
+5. Launch the admnistration page by clicking 'Open Application' button.
 
-5Access the application - please reference the [Customer Implementation Guide](https://twilio-cms-prod.s3.amazonaws.com/documents/Telehealth_Implementation_Guide.pdf) for detailed steps.
+6. Terminate the docker container `hls-installer` in the docker dashboard.

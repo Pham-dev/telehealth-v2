@@ -47,6 +47,7 @@ exports.handler = async function(context, event, callback) {
     const result = [];
     result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Appointments.json'));
     result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Conditions.json'));
+    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/CoverageEligibilityResponses.json'));
     result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/DocumentReferences.json'));
     result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/MedicationStatements.json'));
     result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Patients.json'));
