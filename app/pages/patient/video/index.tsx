@@ -7,11 +7,13 @@ import { roomService } from '../../../services/roomService';
 import { useRouter } from 'next/router';
 import PatientVideoContextLayout from '../../../components/Patient/PatientLayout';
 import useChatContext from '../../../components/Base/ChatProvider/useChatContext/useChatContext';
+import useSyncContext from '../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 
 const VideoPage = () => {
   const { user, visit } = useVisitContext();
   const { connect: videoConnect, room } = useVideoContext();
   const { connect: chatConnect } = useChatContext();
+  const { connect: syncConnect } = useSyncContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,8 +23,10 @@ const VideoPage = () => {
         if(!roomTokenResp.roomAvailable) {
           router.push('/patient/waiting-room');
         }
-        chatConnect(roomTokenResp.token);
-        videoConnect(roomTokenResp.token);
+        const token = roomTokenResp.token;
+        chatConnect(token);
+        syncConnect(token);
+        videoConnect(token);
       });
     }
   },[router, room]);
