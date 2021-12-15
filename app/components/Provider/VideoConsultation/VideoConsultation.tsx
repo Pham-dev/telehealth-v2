@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { joinClasses } from '../../../utils';
 import useParticipants from '../../Base/VideoProvider/useParticipants/useParticipants';
 import useVideoContext from '../../Base/VideoProvider/useVideoContext/useVideoContext';
@@ -38,8 +38,14 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     providerParticipant: null,
     visitorParticipant: null,
   });
+  const draggableContainer = useRef();
+  const [screenPosition, setScreenPosition] = useState({
+    top: '2%',
+    left: '84%'
+  })
 
   useEffect(() => {
+
     if (room) {
       setCallState(prev => {
         return {
@@ -57,7 +63,24 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     [user, room, isRecording]);
 
   const titleStyles = {left: '45%'};
-  const styles = {paddingBottom: '10px'}
+
+  let shiftX = 0;
+  let shiftY = 0;
+  const dragScreen = (e) => {
+    e.preventDefault();
+    // @ts-ignore
+    shiftX = e.clientX - draggableContainer.current.getBoundingClientRect().left;
+    // @ts-ignore
+    shiftY = e.clientY - draggableContainer.current.getBoundingClientRect().top;
+  }
+
+  const pinScreen = (e) => {
+    e.preventDefault();
+    const top = e.pageY - shiftY + 'px';
+    const left = e.pageX - shiftX + 'px';
+    setScreenPosition({ top, left });
+  }
+
   return (
     <div className="relative h-full">
       <h1 className="absolute text-white text-2xl font-bold top-4 z-10" style={titleStyles}>
@@ -70,7 +93,14 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         )}
       >
 
-        <div className="absolute right-6 min-w-[12rem] w-[15%] flex flex-col z-20">
+        <div
+          draggable
+          ref={draggableContainer}
+          onMouseDown={dragScreen}
+          onDragEnd={pinScreen}
+          className="absolute min-w-[12rem] w-[15%] flex flex-col z-20"
+          style={screenPosition}
+        >
           {callState.providerParticipant &&
             <VideoParticipant
               name={providerName}
