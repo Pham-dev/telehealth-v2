@@ -84,7 +84,6 @@ async function upsertSyncDocument(context, syncServiceSid, syncDocumentName, syn
   let document = await _fetchSyncDocument(client, syncServiceSid, syncDocumentName)
 
   if (document) {
-    console.log('updating document:', document.uniqueName, document.sid);
     document = await client.sync
       .services(syncServiceSid)
       .documents(document.sid)
