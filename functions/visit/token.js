@@ -38,6 +38,13 @@ async function getToken(context, event, response) {
   return response;
 };
 
+async function getSyncToken(context, role, event, response) {
+  const tokenData = await tokens.getSyncToken(context, role);
+  response.setBody(tokenData);
+  response.setStatusCode(200);
+  return response;
+}
+
 module.exports.handler = async (context, event, callback) => {
   // TODO: Secure this handler after debug
   let response = new Twilio.Response();
@@ -53,12 +60,18 @@ module.exports.handler = async (context, event, callback) => {
   } 
   else if(event.action === 'PROVIDER') {    
     await getPasscode(context, 'provider', event, response);
+  } 
+  else if(event.action === 'PASSCODE') {
+    await getPasscode(context, 'thirdParty', event, response);
+  }
+  else if (event.action === 'SYNC') {
+    await getSyncToken(context, 'provider' ,event, response);
   }
   else if (event.action === 'TOKEN') {
     await getToken(context, event, response);
   } else {
     response.setStatusCode(400);
-    response.setBody({error: "Unknown Action: ''. Expecting CREATE or TOKEN"});
+    response.setBody({error: "Unknown Action: ''. Expecting [TOKEN, VISITOR, PROVIDER, PASSCODE, SYNC]"});
   }    
   return callback(null, response);
 };

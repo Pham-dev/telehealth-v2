@@ -8,8 +8,6 @@ import composeProviders from "../ComposeProviders/ComposeProviders";
 import { SyncProvider } from "../Base/SyncProvider";
 
 const Providers = composeProviders(
-  VisitStateProvider,
-  VideoProvider,
   VideoProviderChildrenWrapper,
   ChatProvider,
   SyncProvider
@@ -40,9 +38,13 @@ function VideoProviderChildrenWrapper(props: React.PropsWithChildren<{}>) {
 export function ProviderVideoContextLayout(props: React.PropsWithChildren<{}>) {
   const connectionOptions = useConnectionOptions();
   return (
-    <Providers>
-      {props.children}
-    </Providers>
+    <VisitStateProvider>
+      <VideoProvider options={connectionOptions} onError={(error) => console.log(error)}>
+        <Providers>
+          {props.children}
+        </Providers>
+      </VideoProvider>
+    </VisitStateProvider>
   );
 }
 

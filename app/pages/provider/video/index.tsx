@@ -15,7 +15,6 @@ const VideoPage: TwilioPage = () => {
   const { user } = useVisitContext();
   const { connect: videoConnect, room } = useVideoContext();
   const { connect: chatConnect } = useChatContext();
-  const { connect: syncConnect } = useSyncContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -29,7 +28,6 @@ const VideoPage: TwilioPage = () => {
             }
             const token = roomTokenResp.token;
             chatConnect(token);
-            syncConnect(token);
             videoConnect(token); 
           });
         });

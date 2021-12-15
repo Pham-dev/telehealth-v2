@@ -8,8 +8,6 @@ import useVideoContext from "../Base/VideoProvider/useVideoContext/useVideoConte
 import composeProviders from "../ComposeProviders/ComposeProviders";
 
 const Providers = composeProviders(
-  VisitStateProvider,
-  VideoProvider,
   VideoProviderChildrenWrapper,
   ChatProvider,
   SyncProvider
@@ -40,9 +38,13 @@ function VideoProviderChildrenWrapper(props: React.PropsWithChildren<{}>) {
 export function PatientVideoContextLayout(props: React.PropsWithChildren<{}>) {
   const connectionOptions = useConnectionOptions();
   return (
-    <Providers>
-      {props.children}
-    </Providers>
+    <VisitStateProvider>
+      <VideoProvider options={connectionOptions} onError={(error) => console.log(error)}>
+        <Providers>
+          {props.children}
+        </Providers>
+      </VideoProvider>
+    </VisitStateProvider>
   );
 }
   

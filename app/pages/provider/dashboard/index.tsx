@@ -8,14 +8,13 @@ import {
   PatientQueueCard,
 } from '../../../components/Provider';
 import { NextPatientCard } from '../../../components/Provider/NextPatientCard';
-import {TelehealthVisit, TwilioPage} from '../../../types';
+import { TelehealthVisit, TwilioPage } from '../../../types';
 import ProviderVideoContextLayout from '../../../components/Provider/ProviderLayout';
-import clientStorage from '../../../services/clientStorage';
-import {STORAGE_USER_KEY, STORAGE_VISIT_KEY} from "../../../constants";
 import datastoreService from '../../../services/datastoreService';
-import { ProviderUser, EHRContent } from '../../../types';
+import { EHRContent } from '../../../types';
 import { useVisitContext } from '../../../state/VisitContext';
-import TechnicalCheckPage from '../../invited-attendee/technical-check';
+import useSyncContext from '../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
+import { Uris } from '../../../services/constants';
 
 const DashboardPage: TwilioPage = () => {
   
@@ -26,6 +25,21 @@ const DashboardPage: TwilioPage = () => {
   const [ contentAssigned, setContentAssigned ] = useState<EHRContent>();
   const [ contentAvailable, setContentAvailable ] = useState<EHRContent[]>([]);
   const { user } = useVisitContext();
+  const { connect: syncConnect } = useSyncContext();
+
+  useEffect(() => {
+    fetch(Uris.get(Uris.visits.token), {
+      method: 'POST',
+      body: JSON.stringify({ action: "SYNC" }),
+      headers: { 
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+      }
+    }).then(async r => {
+      const syncToken = await r.json();
+      syncConnect(syncToken.token);
+    })
+  }, [syncConnect]);
 
   useEffect(() => {
     if (!mediaError) {
@@ -37,20 +51,20 @@ const DashboardPage: TwilioPage = () => {
   }, [getAudioAndVideoTracks, mediaError]);
 
   useEffect(() => {
-      datastoreService.fetchAllTelehealthVisits(user)
-        .then(tv => {
-          setVisitQueue(tv);
-          setVisitNext(tv[0]);
-          console.log('NEXT VISIT IS', visitNext);
-        });
+    datastoreService.fetchAllTelehealthVisits(user)
+      .then(tv => {
+        setVisitQueue(tv);
+        setVisitNext(tv[0]);
+        //console.log('NEXT VISIT IS', visitNext);
+      });
 
-      datastoreService.fetchAllContent(user)
-        .then(cArray => {         
-          setContentAvailable(cArray);
-          setContentAssigned(cArray.find((c) => {
-            c.provider_ids.some(e => e === user.id);
-          }));
-        });
+    datastoreService.fetchAllContent(user)
+      .then(cArray => {         
+        setContentAvailable(cArray);
+        setContentAssigned(cArray.find((c) => {
+          c.provider_ids.some(e => e === user.id);
+        }));
+      });
   }, [user]);
 
   return (
