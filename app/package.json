@@ -35,6 +35,8 @@
     "@storybook/addon-postcss": "^2.0.0",
     "@storybook/react": "^6.3.12",
     "@tailwindcss/line-clamp": "^0.2.2",
+    "@testing-library/react-hooks": "^7.0.2",
+    "@types/jest": "^27.0.3",
     "@types/luxon": "^2.0.7",
     "@types/node": "^16.11.6",
     "@types/react": "^17.0.34",
