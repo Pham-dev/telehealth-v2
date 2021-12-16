@@ -5,13 +5,14 @@ import { Heading } from '../../../components/Heading';
 import { Layout } from '../../../components/Patient';
 import { Modal } from '../../../components/Modal';
 import { TechnicalCheck } from '../../../components/TechnicalCheck';
-import { PatientUser, TwilioPage } from '../../../types';
+import { PatientUser, TwilioPage, EHRContent } from '../../../types';
 import { useVisitContext } from '../../../state/VisitContext';
 import useVideoContext from '../../../components/Base/VideoProvider/useVideoContext/useVideoContext';
 import { roomService } from '../../../services/roomService';
 import { useRouter } from 'next/router';
 import PatientVideoContextLayout from '../../../components/Patient/PatientLayout';
 import ReactPlayer from 'react-player';
+import datastoreService from '../../../services/datastoreService';
 
 /**
  * Waiting Room for patient
@@ -20,10 +21,11 @@ import ReactPlayer from 'react-player';
  * - validate Youtube videos to ensure they exist before displaying.
  */
 const WaitingRoomPage: TwilioPage = () => {
-  const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
+  const [ showLeaveConfirmation, setShowLeaveConfirmation ] = useState(false);
   const { visit, user } = useVisitContext();
   const { getAudioAndVideoTracks } = useVideoContext();
-  const [mediaError, setMediaError] = useState<Error>();
+  const [ mediaError, setMediaError ] = useState<Error>();
+  const [ waitingRoomContent, setWaitingRoomContent ] = useState<EHRContent>();
   const router = useRouter();
 
   useEffect(() => {
@@ -37,6 +39,15 @@ const WaitingRoomPage: TwilioPage = () => {
   }, [getAudioAndVideoTracks, mediaError]);
 
   useEffect(() => {
+    if (user && visit) {
+      datastoreService.fetchContentForPatient(user, visit.ehrProvider.id)
+          .then((c) => {
+            setWaitingRoomContent(c);
+          });
+    }
+  }, [user, visit]);
+
+  useEffect(() => {
     if(user && visit) {
       const interval = setInterval(() => roomService.checkRoom(user as PatientUser, visit.roomName)
       .then(room => {
@@ -47,9 +58,10 @@ const WaitingRoomPage: TwilioPage = () => {
       return () => clearInterval(interval);
     }
   }, [router, visit, user]);
+
   return (
     <Layout>
-      { visit ? (
+      { visit && waitingRoomContent ? (
         <>
           <Heading>Your Appointment</Heading>
           <div className='mb-2 text-secondary flex flex-col items-center'>
@@ -65,7 +77,7 @@ const WaitingRoomPage: TwilioPage = () => {
               Content Area
             </div> */}
             <ReactPlayer 
-              url="https://www.youtube.com/watch?v=E1h2Aqr8cu8"
+              url={waitingRoomContent.video_url}
               width={320}
               height={180}
               controls={true}

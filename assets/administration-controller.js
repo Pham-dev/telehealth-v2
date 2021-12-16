@@ -387,7 +387,7 @@ async function populateContents() {
         <td id="${content_css_id}" hidden>${row.content_id}</td>
         <td>${row.content_title}</td>
         <td><a class="button" href="${row.content_video_url}" target="_blank">Watch Video</a></td>
-        <td><small>${row.content_description}</small></td>
+        <td><small>${row.content_description ? row.content_description : ''}</small></td>
       </tr>`);
     });
 
