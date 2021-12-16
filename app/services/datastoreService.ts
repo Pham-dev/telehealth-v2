@@ -161,14 +161,14 @@ async function fetchAllContent(provider: ProviderUser): Promise<Array<EHRContent
  * fetch the waiting room content for the specified provider from server datastore
  * --------------------------------------------------------------------------------------------------------------
  */
-async function fetchContentForProvider(provider: ProviderUser): Promise<EHRContent> {
+async function fetchContentForPatient(patient: TelehealthUser, provider_id): Promise<EHRContent> {
   const tuple = await fetch(Uris.backendRoot + '/datastore/contents', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GET', provider_id: provider.id }),
+    body: JSON.stringify({ action: 'GET', provider_id: provider_id }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${provider.token}`
+      'Authorization': `Bearer ${patient.token}`
     }
   }).then((r) => r.json());
 
@@ -209,6 +209,6 @@ export default {
   fetchAllTelehealthVisits,
   fetchTelehealthVisitForPatient,
   fetchAllContent,
-  fetchContentForProvider,
+  fetchContentForPatient,
   assignContentToProvider,
 };
