@@ -1,4 +1,5 @@
 const TOKENS_MAP="Tokens"
+const { createUserToken } = require(Runtime.getFunctions()["authentication-helper"].path);
 const { fetchSyncMapItem, insertSyncMapItem } = require(Runtime.getFunctions()["datastore/datastore-helpers"].path);
 const { getParam } = require(Runtime.getFunctions()['helpers'].path);
 const AccessToken = Twilio.jwt.AccessToken;
