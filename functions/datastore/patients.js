@@ -156,6 +156,7 @@ exports.handler = async function(context, event, callback) {
       case 'USAGE': {
         // json prototype for ADD
         const prototype = await fetchPublicJsonAsset(context, PROTOTYPE);
+        delete prototype.patient_id;
 
         const usage = {
           action: 'usage for patients function',
@@ -224,7 +225,6 @@ exports.handler = async function(context, event, callback) {
       case 'ADD': {
         assert(event.patient, 'Mssing event.patient!!!');
         const patient = JSON.parse(event.patient);
-        assert(patient.patient_id, 'Mssing patient_id!!!');
         assert(patient.patient_name, 'Mssing patient_name!!!');
         assert(patient.patient_family_name, 'Mssing patient_family_name!!!');
         assert(patient.patient_given_name, 'Mssing patient_given_name!!!');
@@ -234,6 +234,9 @@ exports.handler = async function(context, event, callback) {
         assert(patient.patient_medications, 'Mssing patient_medications!!!');
         assert(patient.patient_conditions, 'Mssing patient_conditions!!!');
         const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
+
+        const now = new Date();
+        patient.patient_id = 'p' + (now.getTime());
 
         const added = transform_patient_to_fhir(patient);
 

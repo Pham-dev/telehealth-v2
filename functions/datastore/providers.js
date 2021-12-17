@@ -82,10 +82,14 @@ exports.handler = async function(context, event, callback) {
             parameters: {},
           },
           GET: {
-            description: 'returns array of provider',
+            description: 'returns array of providers',
             parameters: {
               provider_id: 'optional, filters for specified provider. will return zero or one',
             },
+          },
+          GETONCALL: {
+            description: 'returns array of one provider provider_on_call = true',
+            parameters: {},
           },
         };
         return callback(null, usage);
@@ -105,6 +109,24 @@ exports.handler = async function(context, event, callback) {
         const all = await getAll(context);
 
         const providers = event.provider_id ? all.filter(p => p.provider_id === event.provider_id) : all;
+
+        console.log(THIS, `retrieved ${providers.length} providers`);
+        const response = new Twilio.Response();
+        response.setStatusCode(200);
+        response.appendHeader('Content-Type', 'application/json');
+        response.setBody(providers);
+        if (context.DOMAIN_NAME.startsWith('localhost:')) {
+          response.appendHeader('Access-Control-Allow-Origin', '*');
+          response.appendHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
+          response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+        }
+        return callback(null, response);
+      }
+
+      case 'GETONCALL': {
+        const all = await getAll(context);
+
+        const providers = all.filter(p => p.provider_on_call === true);
 
         console.log(THIS, `retrieved ${providers.length} providers`);
         const response = new Twilio.Response();

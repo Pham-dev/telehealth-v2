@@ -132,6 +132,7 @@ exports.handler = async function(context, event, callback) {
       case 'USAGE': {
         // json prototype for ADD
         const prototype = await fetchPublicJsonAsset(context, PROTOTYPE);
+        delete prototype.appointment_id;
         delete prototype.appointment_type;
         delete prototype.appointment_start_datetime_utc;
         delete prototype.appointment_end_datetime_utc;
@@ -254,15 +255,15 @@ exports.handler = async function(context, event, callback) {
       case 'ADD': {
         assert(event.appointment, 'Mssing event.appointment!!!');
         const appointment = JSON.parse(event.appointment);
-        assert(appointment.appointment_id, 'Mssing appointment_id!!!');
         assert(appointment.appointment_reason, 'Mssing appointment_reason!!!');
         assert(appointment.appointment_references, 'Mssing appointment_references!!!');
         assert(appointment.patient_id, 'Mssing patient_id!!!');
         assert(appointment.provider_id, 'Mssing provider_id!!!');
         const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
 
-        appointment.appointment_type = 'WALKIN';
         const now = new Date();
+        appointment.appointment_id = 'a' + (now.getTime());
+        appointment.appointment_type = 'WALKIN';
         appointment.appointment_start_datetime_utc = now.toISOString();
         appointment.appointment_en_datetime_utc = new Date(now.getTime() + 1000*60*30).toISOString();
 

@@ -97,6 +97,7 @@ exports.handler = async function(context, event, callback) {
       case 'USAGE': {
         // json prototype for ADD
         const prototype = await fetchPublicJsonAsset(context, PROTOTYPE);
+        delete prototype.content_id;
         delete prototype.providers;
 
         const usage = {
@@ -169,10 +170,12 @@ exports.handler = async function(context, event, callback) {
       case 'ADD': {
         assert(event.content, 'Mssing event.content!!!');
         const content = JSON.parse(event.content);
-        assert(content.content_id, 'Mssing content_id!!!');
         assert(content.content_title, 'Mssing content_title!!!');
         assert(content.content_video_url, 'Mssing content_video_url!!!');
         const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
+
+        const now = new Date();
+        content.content_id = 'c' + (now.getTime());
 
         const fhir_document_reference = transform_content_to_fhir(content);
 
