@@ -14,6 +14,8 @@ import { VideoParticipant } from './VideoParticipant';
 import useChatContext from '../../Base/ChatProvider/useChatContext/useChatContext';
 import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/useLocalAudioToggle';
 import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/useLocalVideoToggle';
+import useParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
+import useLocalParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
 
 export interface VideoConsultationProps {}
 
@@ -27,6 +29,9 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   const participants = useParticipants();
   const { room } = useVideoContext();
   const { setIsChatWindowOpen, isChatWindowOpen } = useChatContext();
+  const networkQualityLevel = useLocalParticipantNetworkQualityLevel(room);
+  const [connectionIssueTimeout, setConnectionIssueTimeout] = useState(null);
+
   const [callState, setCallState] = useState<PatientRoomState>({
     patientName: null,
     providerName: null,
@@ -34,8 +39,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     patientParticipant: null,
     providerParticipant: null,
     visitorParticipant: null
-  });
-
+  });  
   useEffect(() => {
     if (room) {
       setCallState(prev => {
@@ -48,6 +52,20 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
       })
     }
   }, [participants, room]);
+
+  useEffect(() => {
+    if(networkQualityLevel === 1 || networkQualityLevel === 0) {
+      if(!connectionIssueTimeout) {
+        setConnectionIssueTimeout(setTimeout(() => setConnectionIssueModalVisible(true), 10000));
+      }
+    } else {
+      if(connectionIssueTimeout) {
+        clearTimeout(connectionIssueTimeout);
+        setConnectionIssueTimeout(null);
+      }
+    }
+  }, [networkQualityLevel, connectionIssueTimeout]);
+  
 
   function toggleInviteModal() {
     setInviteModalVisible(!inviteModalVisible);
