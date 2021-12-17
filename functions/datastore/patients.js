@@ -253,7 +253,16 @@ exports.handler = async function(context, event, callback) {
         await save_fhir(context, TWILIO_SYNC_SID, FHIR_CONDITION, new_conditions);
 
         console.log(THIS, `added content ${patient.patient_id}`);
-        return callback(null, { patient_id : patient.patient_id });
+        const response = new Twilio.Response();
+        response.setStatusCode(200);
+        response.appendHeader('Content-Type', 'application/json');
+        response.setBody(patient);
+        if (context.DOMAIN_NAME.startsWith('localhost:')) {
+          response.appendHeader('Access-Control-Allow-Origin', '*');
+          response.appendHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
+          response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+        }
+        return callback(null, response);
       }
 
       case 'REMOVE': {
@@ -276,7 +285,16 @@ exports.handler = async function(context, event, callback) {
         await save_fhir(context, TWILIO_SYNC_SID, FHIR_CONDITION, new_conditions);
 
         console.log(THIS, `removed patient ${event.patient_id}`);
-        return callback(null, { patient_id : event.patient_id });
+        const response = new Twilio.Response();
+        response.setStatusCode(200);
+        response.appendHeader('Content-Type', 'application/json');
+        response.setBody({ patient_id : event.patient_id });
+        if (context.DOMAIN_NAME.startsWith('localhost:')) {
+          response.appendHeader('Access-Control-Allow-Origin', '*');
+          response.appendHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
+          response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+        }
+        return callback(null, response);
       }
 
       default: // unknown action
