@@ -4,6 +4,8 @@ import { Button } from '../../../../components/Button';
 import { Layout } from '../../../../components/Patient';
 import { useRouter } from 'next/router';
 import { Uris } from '../../../../services/constants';
+import useSyncContext from '../../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
+import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
 
 /* 
 * After landing on this page, a visitId should be created from EHR
@@ -15,6 +17,7 @@ const PaymentReceivedPage = () => {
   const router = useRouter();
   const [passcode, setPasscode] = useState<string>();
   const [isError, setIsError] = useState<boolean>(false);
+  const { syncClient, onDemandMap } = useSyncContext();
 
   // The values in this fetch statement will be gathered from EHR integration
   useEffect(() => {
@@ -23,8 +26,8 @@ const PaymentReceivedPage = () => {
       body: JSON.stringify({
         role: "patient",
         action: "PATIENT",
-        id: "John",
-        visitId: "v-doe-jonson-1121" // should be generated from EHR
+        id: "a1000000",
+        visitId: "p1000000" // should be generated from EHR
       }),
       headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
     })
@@ -35,8 +38,69 @@ const PaymentReceivedPage = () => {
       setIsError(true);
       new Error(err);
     })
-  }, [])
+  }, []);
 
+  // Will need to change this to real data get call.
+  useEffect(() => {
+    if (syncClient && onDemandMap) {
+      onDemandMap.set('p4000000', {
+          "resourceType": "Appointment",
+          "id": "a4000000",
+          "status": "booked",
+          "appointmentType": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0276",
+                "code": "ROUTINE"
+              }
+            ]
+          },
+          "reasonCode": [
+            {
+              "text": "I think I twiseted my ankle earlier this week when I jumped down some stairs but I can't tell, I attached a photo"
+            }
+          ],
+          "supportingInformation": [
+            {
+              "reference": "datastore/images/a1000000-ankle.png"
+            }
+          ],
+          "start": "2021-01-01T17:00:00Z",
+          "end": "2021-01-01T17:30:00Z",
+          "participant": [
+            {
+              "actor": {
+                "reference": "Patient/p4000000"
+              }
+            },
+            {
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/ValueSet/encounter-participant-type",
+                      "code": "ATND"
+                    }
+                  ]
+                }
+              ],
+              "actor": {
+                "reference": "Practitioner/d1000"
+              }
+            }
+          ]
+      }, { ttl: 14400})
+      .then(item => {
+        console.log('Map SyncMapItem set() successful, item data:', item.data);
+      })
+      .catch((error) => {
+        console.error('Map SyncMapItem set() failed', error);
+      });
+    }
+  }, [onDemandMap, syncClient])
+
+
+  // No check needed because the payment is already validated
   const enterWaitingRoom = () => {
     router.push(`/patient?token=${passcode}`);
   }
@@ -57,12 +121,15 @@ const PaymentReceivedPage = () => {
         }
       />
       <div className="my-5 mx-auto max-w-[250px] w-full">
-        <Button type="submit" disabled={isError} className="w-full" onClick={enterWaitingRoom}>
-          Connect to Waiting Room
-        </Button>
+        {passcode && 
+          <Button type="submit" disabled={isError} className="w-full" onClick={enterWaitingRoom}>
+            Connect to Waiting Room
+          </Button>
+        }
       </div>
     </Layout>
   );
 };
 
 export default PaymentReceivedPage;
+PaymentReceivedPage.Layout = OnDemandLayout;

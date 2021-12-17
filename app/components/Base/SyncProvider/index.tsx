@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { SyncClient, SyncStream } from 'twilio-sync';
-import { useVisitContext } from '../../../state/VisitContext';
+import { SyncClient, SyncMap, SyncStream } from 'twilio-sync';
 
 type SyncContextType = {
   connect: (token: string) => void;
   syncClient: SyncClient;
+  onDemandMap: SyncMap;
 }
 
 export const SyncContext = createContext<SyncContextType>(null);
@@ -12,8 +12,7 @@ export const SyncContext = createContext<SyncContextType>(null);
 export const SyncProvider: React.FC = ({children}) => {
   const [syncClient, setSyncClient] = useState<SyncClient>(null);
   const [syncStream, setSyncStream] = useState<SyncStream>(null);
-  // const { syncToken } = useSyncToken();
-  const { visit, user } = useVisitContext();
+  const [onDemandMap, setOnDemandMap] = useState<SyncMap>(null);
 
   const connect = useCallback((token :string) => {
     try {
@@ -26,24 +25,19 @@ export const SyncProvider: React.FC = ({children}) => {
       throw new Error('Error invalid token: ', err);
     }
     
-  }, [user, visit]);
+  }, []);
 
-  // useEffect(() => {
-  //   console.log(syncClient);
-  //   if (syncClient && visit) {
-  //     console.log(syncClient)
-  //     syncClient.stream(visit.id)
-  //       .then(stream => {
-  //         console.log(stream);
-  //         setSyncStream(stream);
-  //       }).catch(err => {
-  //         console.log(err);
-  //       })
-  //   }
-  // },[syncClient, visit]);
+  useEffect(() => {
+    if (syncClient) {
+      syncClient.map('MyMap')
+        .then(onDemandMap => {
+          setOnDemandMap(onDemandMap);
+        })
+    }
+  }, [syncClient])
 
   return (
-    <SyncContext.Provider value={{connect, syncClient}} >
+    <SyncContext.Provider value={{connect, syncClient, onDemandMap}} >
       {children}
     </SyncContext.Provider>
   );

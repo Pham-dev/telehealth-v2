@@ -48,5 +48,5 @@ export function PatientVideoContextLayout(props: React.PropsWithChildren<{}>) {
   );
 }
   
-  export default PatientVideoContextLayout;
+export default PatientVideoContextLayout;
   
