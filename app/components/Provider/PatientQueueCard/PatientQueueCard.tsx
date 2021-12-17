@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
 import { Card } from '../../Card';
 import { CardHeading } from '../CardHeading';
 import {TelehealthVisit} from "../../../types";
 import { PatientVisitCard } from './PatientVisitCard';
-import useSyncContext from '../../Base/SyncProvider/useSyncContext/useSyncContext';
-import { joinClasses } from '../../../utils';
 
 export interface PatientQueueCardProps {
   className?: string;
@@ -23,12 +20,6 @@ function calculateWaitTime(visitStartTimeLTZ) {
 }
 
 export const PatientQueueCard = ({ className, onDemandQueue, visitQueue }: PatientQueueCardProps) => {
-  console.log("onDemandQueue", onDemandQueue);
-  useEffect(() => {
-    console.log('PatientQueueCard visitQueue=', visitQueue);
-    console.log('onDemandCard visitQueue=', onDemandQueue);
-  }, []);
-
   return (
     <Card className={className}>
       <CardHeading>Patient Queue</CardHeading>
@@ -37,7 +28,7 @@ export const PatientQueueCard = ({ className, onDemandQueue, visitQueue }: Patie
         <div>Reason For Visit:</div>
       </div>
       {onDemandQueue.map((visit, index) => (
-        <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} />
+        <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} isOnDemand={true}/>
       ))}
       {visitQueue.map((visit, index) => (
         <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} />

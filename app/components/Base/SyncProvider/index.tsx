@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { SyncClient, SyncMap, SyncStream } from 'twilio-sync';
+import { SyncClient, SyncMap } from 'twilio-sync';
 
 type SyncContextType = {
   connect: (token: string) => void;
@@ -11,13 +11,11 @@ export const SyncContext = createContext<SyncContextType>(null);
 
 export const SyncProvider: React.FC = ({children}) => {
   const [syncClient, setSyncClient] = useState<SyncClient>(null);
-  const [syncStream, setSyncStream] = useState<SyncStream>(null);
   const [onDemandMap, setOnDemandMap] = useState<SyncMap>(null);
 
   const connect = useCallback((token :string) => {
     try {
       const newSyncClient = new SyncClient(token);
-      console.log(newSyncClient);
       // @ts-ignore
       window.syncClient = newSyncClient;
       setSyncClient(newSyncClient);

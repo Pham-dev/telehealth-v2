@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import OnDemandProvider from "../Base/OnDemandProvider";
 import { SyncProvider } from "../Base/SyncProvider";
-import useSyncContext from "../Base/SyncProvider/useSyncContext/useSyncContext";
 import composeProviders from "../ComposeProviders/ComposeProviders";
 
 const Providers = composeProviders(
+  OnDemandProvider,
   SyncProvider,
 )
 

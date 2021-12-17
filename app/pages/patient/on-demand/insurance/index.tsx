@@ -8,6 +8,7 @@ import {
   Layout,
   UploadInsurance,
 } from '../../../../components/Patient';
+import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
 
 const InsurancePage = () => {
   const router = useRouter();
@@ -45,4 +46,5 @@ const InsurancePage = () => {
   );
 };
 
+InsurancePage.Layout = OnDemandLayout;
 export default InsurancePage;

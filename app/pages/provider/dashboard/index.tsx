@@ -16,7 +16,6 @@ import { useVisitContext } from '../../../state/VisitContext';
 import useSyncContext from '../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import { Uris } from '../../../services/constants';
 import { SyncMapItem } from 'twilio-sync';
-import { reference } from '@popperjs/core';
 
 const DashboardPage: TwilioPage = () => {
   
@@ -59,7 +58,6 @@ const DashboardPage: TwilioPage = () => {
       .then(tv => {
         setVisitQueue(tv);
         setVisitNext(tv[0]);
-        //console.log('NEXT VISIT IS', visitNext);
       });
 
     datastoreService.fetchAllContent(user)
@@ -72,9 +70,29 @@ const DashboardPage: TwilioPage = () => {
   }, [user]);
 
   useEffect(() => {
-    console.log(onDemandMap);
     const itemAdded = (item: SyncMapItem) => {
       console.log("itemAdded: ", item);
+      const onDemandVisit = {
+        id: "a4000000",
+        visitDateTime: new Date(),
+        roomName: "Hello World",
+        ehrPatient: {
+          name: "Sean Jackson",
+          id: "a4000000",
+          phone: "5101234567",
+          gender: "male"
+        },
+        ehrAppointment: {
+          id: "a4000000",
+          type: "appointment",
+          reason: "I broke my femur",
+          references: ["hello"],
+          patient_id: "a4000000",
+          provider_id: "d1000",
+          start_datetime_ltz: new Date(),
+        }
+      } as TelehealthVisit;
+      setOnDemandQueue(prev => [...prev, onDemandVisit]);
     };
     const itemUpdated = (item: SyncMapItem) => {
       // @ts-ignore
@@ -99,7 +117,7 @@ const DashboardPage: TwilioPage = () => {
           provider_id: "d1000",
           start_datetime_ltz: new Date(),
         }
-      } as TelehealthVisit
+      } as TelehealthVisit;
       setOnDemandQueue(prev => [...prev, onDemandVisit]);
     };
     if (syncClient && onDemandMap) {
@@ -110,7 +128,7 @@ const DashboardPage: TwilioPage = () => {
         onDemandMap.off('itemUpdated', itemUpdated);
       }
     }
-  }, [onDemandMap]);
+  }, [onDemandMap, syncClient]);
 
   return (
     <Layout>

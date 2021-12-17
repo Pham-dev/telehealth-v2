@@ -11,11 +11,13 @@ import { PaymentForm } from '../../../../components/Patient/PaymentForm';
 import useSyncContext from '../../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import { Uris } from '../../../../services/constants';
 import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
+import useOnDemandContext from '../../../../components/Base/OnDemandProvider/useOnDemandContext/useOnDemandContext';
 
 const PaymentPage = () => {
   const router = useRouter();
   const [enterManually, setEnterManually] = useState(false);
   const { connect: syncConnect } = useSyncContext();
+  const { firstName } = useOnDemandContext();
 
   // Initialize the Sync Client prior to reduce backend API calls latency
   useEffect(() => {
@@ -48,5 +50,5 @@ const PaymentPage = () => {
   );
 };
 
-export default PaymentPage;
 PaymentPage.Layout = OnDemandLayout;
+export default PaymentPage;

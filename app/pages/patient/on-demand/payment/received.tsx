@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { Uris } from '../../../../services/constants';
 import useSyncContext from '../../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
+import useOnDemandContext from '../../../../components/Base/OnDemandProvider/useOnDemandContext/useOnDemandContext';
 
 /* 
 * After landing on this page, a visitId should be created from EHR
@@ -18,6 +19,23 @@ const PaymentReceivedPage = () => {
   const [passcode, setPasscode] = useState<string>();
   const [isError, setIsError] = useState<boolean>(false);
   const { syncClient, onDemandMap } = useSyncContext();
+  //const { patient, setPatient } = useState(null);
+
+  const { 
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    gender,
+    needTranslator,
+    medications,
+    reasonForVisit,
+    preExistingConditions
+   } = useOnDemandContext();
+  
+  useEffect(() => {
+    console.log(firstName, lastName, email, phoneNumber, gender, needTranslator, medications, reasonForVisit, preExistingConditions);
+  }, []);
 
   // The values in this fetch statement will be gathered from EHR integration
   useEffect(() => {
@@ -38,6 +56,13 @@ const PaymentReceivedPage = () => {
       setIsError(true);
       new Error(err);
     })
+  }, []);
+
+  // fetch provider
+  // add patient
+  // add appointment
+  useEffect(() => {
+
   }, []);
 
   // Will need to change this to real data get call.
@@ -131,5 +156,5 @@ const PaymentReceivedPage = () => {
   );
 };
 
-export default PaymentReceivedPage;
 PaymentReceivedPage.Layout = OnDemandLayout;
+export default PaymentReceivedPage;

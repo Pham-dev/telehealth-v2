@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button } from '../../Button';
+import { Form } from '../../Form';
 import { Icon } from '../../Icon';
+import { Input } from '../../Input';
 import { Textarea } from '../../Textarea';
 
 export interface HealthFormProps {
@@ -14,7 +16,6 @@ export const HealthForm = ({ onSubmit }: HealthFormProps) => {
   const [files, setFiles] = useState([{ name: 'Attached_File_Name.jpg' }]);
 
   function submit(event) {
-    event.preventDefault();
     onSubmit({
       conditions,
       medications,
@@ -24,15 +25,16 @@ export const HealthForm = ({ onSubmit }: HealthFormProps) => {
   }
 
   return (
-    <form className="flex flex-col h-full" onSubmit={submit}>
+    <Form className="flex flex-col h-full" onSubmit={submit}>
       <p className="text-center text-dark">
         Tell the doctor a little more about why you’re visiting today
       </p>
-      <Textarea className="my-2" placeholder="Preexisting Conditions" />
-      <Textarea className="my-2" placeholder="Current Medications" />
+      <Textarea className="my-2" placeholder="Preexisting Conditions" setText={setConditions}/>
+      <Textarea className="my-2" placeholder="Current Medications" setText={setMedications}/>
       <Textarea
         className="my-2"
         placeholder="Reason for visit (symptoms, etc - this is optional)"
+        setText={setReason}
       />
       <div>
         <p className="my-3 text-dark">
@@ -64,6 +66,6 @@ export const HealthForm = ({ onSubmit }: HealthFormProps) => {
           Continue
         </Button>
       </div>
-    </form>
+    </Form>
   );
 };

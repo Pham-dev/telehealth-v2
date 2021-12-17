@@ -6,19 +6,21 @@ export interface PatientVisitCardProps {
   visit: TelehealthVisit;
   index: number;
   waitTime: string;
+  isOnDemand?: boolean; 
 }
 
-export const PatientVisitCard = ({visit, index, waitTime}: PatientVisitCardProps) => {
+export const PatientVisitCard = ({visit, index, waitTime, isOnDemand = false}: PatientVisitCardProps) => {
   return (
     <div
       key={index}
       className={joinClasses(
         'grid grid-cols-2 gap-4 font-bold text-xs px-1 py-2',
-        index % 2 ? '' : 'bg-[#FAFAFA]'
+        isOnDemand ? 'bg-[#eff6ff] border border-[#d4d4d4]' : index % 2 ? '' : 'bg-[#FAFAFA]'
       )}
     >
       <div>
         <a className="text-link underline">{visit.ehrPatient.name}</a>
+        {isOnDemand && <text className="color-red"> (On Demand)</text>}
         <div className="font-bold text-light">
           { waitTime }
         </div>
