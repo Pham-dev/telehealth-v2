@@ -1,3 +1,4 @@
+import router from "next/router";
 import React, { useEffect, useState } from "react";
 import { useVisitContext, VisitStateProvider } from "../../state/VisitContext";
 import { ChatProvider } from "../Base/ChatProvider";
@@ -16,6 +17,7 @@ import useVideoContext from "../Base/VideoProvider/useVideoContext/useVideoConte
           console.log('Error acquiring local media:');
           console.dir(error);
           setMediaError(error);
+          router.push("/patient/video/no-av-permission");
         });
       }
     }, [getAudioAndVideoTracks, mediaError]);

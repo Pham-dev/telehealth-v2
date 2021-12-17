@@ -50,6 +50,24 @@ export async function isPermissionDenied(name: PermissionName) {
   }
 }
 
+export async function requestPermissions() {
+  if (navigator.mediaDevices) {
+    try {
+      return await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+        .then(() => {
+          return true;
+        }).catch(err => {
+          console.log(`Error requesting audio and video: ${err}`);
+          return false;
+        });
+    } catch {
+      return Promise.resolve(false);
+    }
+  } else {
+    return Promise.resolve(false);
+  }
+}
+
 export function joinClasses(...classes) {
   return classes.filter(Boolean).join(' ');
 }
