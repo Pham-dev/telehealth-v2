@@ -265,7 +265,7 @@ exports.handler = async function(context, event, callback) {
         appointment.appointment_id = 'a' + (now.getTime());
         appointment.appointment_type = 'WALKIN';
         appointment.appointment_start_datetime_utc = now.toISOString();
-        appointment.appointment_en_datetime_utc = new Date(now.getTime() + 1000*60*30).toISOString();
+        appointment.appointment_end_datetime_utc = new Date(now.getTime() + 1000*60*30).toISOString();
 
         const fhir_appointment = transform_appointment_to_fhir(appointment);
 
@@ -275,7 +275,16 @@ exports.handler = async function(context, event, callback) {
         await save_fhir(context, TWILIO_SYNC_SID, FHIR_APPOINTMENT, resources);
 
         console.log(THIS, `added appointment ${appointment.appointment_id}`);
-        return callback(null, { appointment_id : appointment.appointment_id });
+        const response = new Twilio.Response();
+        response.setStatusCode(200);
+        response.appendHeader('Content-Type', 'application/json');
+        response.setBody(appointment);
+        if (context.DOMAIN_NAME.startsWith('localhost:')) {
+          response.appendHeader('Access-Control-Allow-Origin', '*');
+          response.appendHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
+          response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+        }
+        return callback(null, response);
       }
 
       case 'REMOVE': {
@@ -287,7 +296,16 @@ exports.handler = async function(context, event, callback) {
         await save_fhir(context, TWILIO_SYNC_SID, FHIR_APPOINTMENT, remainder);
 
         console.log(THIS, `removed appointment ${event.appointment_id}`);
-        return callback(null, { appointment_id : event.appointment_id });
+        const response = new Twilio.Response();
+        response.setStatusCode(200);
+        response.appendHeader('Content-Type', 'application/json');
+        response.setBody({ appointment_id : event.appointment_id });
+        if (context.DOMAIN_NAME.startsWith('localhost:')) {
+          response.appendHeader('Access-Control-Allow-Origin', '*');
+          response.appendHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
+          response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
+        }
+        return callback(null, response);
       }
 
       default: // unknown action

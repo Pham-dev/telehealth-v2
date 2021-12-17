@@ -1,9 +1,12 @@
+/* --------------------------------------------------------------------------------------------------------------
+ * encapsulation of server datastore functions
+ * --------------------------------------------------------------------------------------------------------------
+ */
 import {EHRPatient, EHRProvider, EHRContent, EHRAppointment, PatientUser, ProviderUser, TelehealthUser, TelehealthVisit} from "../types";
 import {Uris} from "./constants";
-
+const assert = require('assert');
 
 function instantiatePatient(data: any) : EHRPatient {
-  const medication = data.patient_medications.map(e => { return { medication: e }; });
   return {
     id: data.patient_id,
     name: data.patient_name,
@@ -205,10 +208,119 @@ async function assignContentToProvider(content_id: string, provider: ProviderUse
 }
 
 
+/* --------------------------------------------------------------------------------------------------------------
+ * fetch provider on call (for on-demand patients).
+ *
+ * there can be only 1 provider
+ * --------------------------------------------------------------------------------------------------------------
+ */
+async function fetchProviderOnCall(token: string): Promise<EHRProvider> {
+  const tuple = await fetch(Uris.backendRoot + '/datastore/providers', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'GETONCALL' }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then((r) => r.json());
+
+  if (tuple.length === 0) {
+    Promise.reject({ error: 'No on-call provider found, error in EHR data!!!' });
+  }
+
+  const _provider = instantiateProvider(tuple[0]);
+
+  return Promise.resolve(_provider);
+}
+
+
+/* --------------------------------------------------------------------------------------------------------------
+ * create new patient
+ * --------------------------------------------------------------------------------------------------------------
+ */
+async function addPatient(token: string, ehrPatient: EHRPatient): Promise<EHRPatient> {
+
+  assert(ehrPatient.family_name, 'Missing family_name!!!');
+  assert(ehrPatient.given_name, 'Missing given_name!!!');
+  assert(ehrPatient.phone, 'Missing phone!!!');
+  assert(ehrPatient.phone, 'Missing phone!!!');
+
+  const _patientData = {
+    patient_family_name: ehrPatient.family_name,
+    patient_given_name: ehrPatient.given_name,
+    patient_phone: ehrPatient.phone,
+    ...(ehrPatient.phone && { patient_phone: ehrPatient.phone }),
+    ...(ehrPatient.email && { patient_email: ehrPatient.email }),
+    patient_gender: ehrPatient.phone,
+    patient_langugage: ehrPatient.language ?  ehrPatient.language : 'English',
+    patient_medications: ehrPatient.medications ? ehrPatient.medications: [],
+    patient_conditions: ehrPatient.conditions ? ehrPatient.conditions : [],
+  };
+
+  const newPatientData = await fetch(Uris.backendRoot + '/datastore/patients', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'ADD', patient: _patientData }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then((r) => r.json());
+
+  if (! newPatientData) {
+    Promise.reject({ error: 'Unable to create new patient in EHR!!!' });
+  }
+
+  const newEHRPatient = instantiatePatient(newPatientData);
+
+  return Promise.resolve(newEHRPatient);
+}
+
+
+/* --------------------------------------------------------------------------------------------------------------
+ * create new appointment
+ * --------------------------------------------------------------------------------------------------------------
+ */
+async function addAppointment(token: string, ehrAppointment: EHRAppointment): Promise<EHRAppointment> {
+
+  assert(ehrAppointment.patient_id, 'Missing patient_id!!!');
+  assert(ehrAppointment.provider_id, 'Missing provider_id!!!');
+
+  const _appointmentData = {
+    patient_id: ehrAppointment.patient_id,
+    provider_id: ehrAppointment.provider_id,
+    ...(ehrAppointment.reason && { appointment_reason: ehrAppointment.reason }),
+    ...(ehrAppointment.references && { appointment_references: ehrAppointment.references }),
+  };
+
+  const newAppointmentData = await fetch(Uris.backendRoot + '/datastore/appointments', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'ADD', appointment: _appointmentData }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then((r) => r.json());
+
+  if (! newAppointmentData) {
+    Promise.reject({ error: 'Unable to create new appointment in EHR!!!' });
+  }
+
+  const newEhrAppointment = instantiateAppointment(newAppointmentData);
+
+  return Promise.resolve(newEhrAppointment);
+}
+
+
 export default {
   fetchAllTelehealthVisits,
   fetchTelehealthVisitForPatient,
   fetchAllContent,
   fetchContentForPatient,
   assignContentToProvider,
+  fetchProviderOnCall,
+  addPatient,
+  addAppointment,
 };
