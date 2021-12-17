@@ -38,7 +38,7 @@ export const VideoParticipant = ({
   const { room } = useVideoContext();
   const mainParticipant = useMainParticipant();
   const localParticipant = room!.localParticipant;
-  const [selectedParticipant] = useSelectedParticipant();
+  const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
   const screenShareParticipant = useScreenShareParticipant();
 
   const publications = usePublications(participant);
@@ -107,6 +107,8 @@ export const VideoParticipant = ({
     return () => clearTimeout(timer);
   }, [muted, showMutedBanner]);
 
+  const currentParticipant = isSelf ? mainParticipant : participant;
+
   return (
     <div className={joinClasses(
       'mx-auto relative group',
@@ -142,12 +144,12 @@ export const VideoParticipant = ({
                   <button
                     className="w-full text-left"
                     type="button"
-                    onClick={() => setIsPinned(!isPinned)}
+                    onClick={() => {setIsPinned(!isPinned); setSelectedParticipant(currentParticipant)}}
                   >
                     {isPinned ? 'Unpin' : 'Pin'} Participant
                   </button>
                 </li>
-                <li className="border-t border-dark"></li>
+                <li className='border-t border-dark'/>
                 <li className="m-2">
                   <button
                     className="w-full text-left"

@@ -1,4 +1,4 @@
-import { act, HookResult, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, RenderResult } from '@testing-library/react-hooks';
 import { EventEmitter } from 'events';
 import React from 'react';
 import { Participant, Room } from 'twilio-video';
@@ -6,7 +6,7 @@ import useSelectedParticipant, { SelectedParticipantProvider } from './useSelect
 
 describe('the useSelectedParticipant hook', () => {
   let mockRoom: Room;
-  let result: HookResult<readonly [Participant | null, (participant: Participant) => void]>;
+  let result: RenderResult<readonly [Participant | null, (participant: Participant) => void]>;
 
   beforeEach(() => (mockRoom = new EventEmitter() as Room));
 
