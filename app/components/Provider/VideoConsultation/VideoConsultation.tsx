@@ -15,6 +15,8 @@ import { useVisitContext } from '../../../state/VisitContext';
 import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/useLocalAudioToggle';
 import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/useLocalVideoToggle';
 import { roomService } from '../../../services/roomService';
+import useSelectedParticipant from '../../Base/VideoProvider/useSelectedParticipant/useSelectedParticipant';
+import { RemoteParticipant } from 'twilio-video';
 
 export interface VideoConsultationProps {}
 
@@ -30,6 +32,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   const { setIsChatWindowOpen, isChatWindowOpen } = useChatContext();
   const { user } = useVisitContext();
   const { room, isRecording, toggleScreenShare } = useVideoContext();
+  const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
   const [callState, setCallState] = useState<ProviderRoomState>({
     patientName: null,
     providerName: null,
@@ -57,7 +60,9 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     [user, room, isRecording]);
 
   const titleStyles = {left: '45%'};
-  const styles = {paddingBottom: '10px'}
+  // todo need to render previous speaker in block with all other participants
+  const mainDisplayedParticipant = selectedParticipant as RemoteParticipant || callState.patientParticipant;
+
   return (
     <div className="relative h-full">
       <h1 className="absolute text-white text-2xl font-bold top-4 z-10" style={titleStyles}>
@@ -93,12 +98,12 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         </div>
 
         <div className="w-2/3 h-full">
-            {callState.patientParticipant &&
+            {mainDisplayedParticipant &&
               <VideoParticipant
                 name="Sarah Coopers"
                 hasAudio
                 hasVideo
-                participant={callState.patientParticipant}
+                participant={mainDisplayedParticipant}
                 fullScreen
               />
             }

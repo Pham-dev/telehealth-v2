@@ -1,9 +1,20 @@
+import router from 'next/router';
 import React from 'react';
 import { Alert } from '../../../components/Alert';
+import useVideoContext from '../../../components/Base/VideoProvider/useVideoContext/useVideoContext';
 import { Button, ButtonVariant } from '../../../components/Button';
 import { Layout } from '../../../components/Patient';
+import { requestPermissions } from '../../../utils';
 
 const NoAvPermissionPage = () => {
+  const getPermissionsClick = () => {
+      requestPermissions()
+      .then((allowed) => {
+        if(allowed) {
+          router.push("/patient/waiting-room");
+        }
+      });
+    }
   return (
     <Layout>
       <Alert
@@ -26,7 +37,7 @@ const NoAvPermissionPage = () => {
         }
         footer={
           <>
-            <Button className="my-1 max-w-[272px] w-full mx-auto">
+            <Button className="my-1 max-w-[272px] w-full mx-auto" onClick={getPermissionsClick}>
               Give Permission
             </Button>
             <Button

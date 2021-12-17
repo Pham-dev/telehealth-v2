@@ -1,3 +1,4 @@
+import router from "next/router";
 import React, { useEffect, useState } from "react";
 import { useVisitContext, VisitStateProvider } from "../../state/VisitContext";
 import { ChatProvider } from "../Base/ChatProvider";
@@ -24,6 +25,7 @@ function VideoProviderChildrenWrapper(props: React.PropsWithChildren<{}>) {
         console.log('Error acquiring local media:');
         console.dir(error);
         setMediaError(error);
+        router.push("/patient/video/no-av-permission");
       });
     }
   }, [getAudioAndVideoTracks, mediaError]);

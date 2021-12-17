@@ -69,10 +69,10 @@ async function fetchAllTelehealthVisits(provider: ProviderUser): Promise<Array<T
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${provider.token}`
     }
-  }).then(r => r.json());
+  }).then((r) => r.json());
 
   const result: TelehealthVisit[] = [];
-  tuple.forEach(t => {
+  tuple.forEach((t) => {
     const patient = instantiatePatient(t.patient);
     const provider = instantiateProvider(t.provider);
     const appointment = instantiateAppointment(t.appointment);
@@ -103,7 +103,7 @@ async function fetchTelehealthVisitForPatient(user: TelehealthUser, appointment_
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${user.token}`
     }
-  }).then(r => r.json());
+  }).then((r) => r.json());
 
   if(tuple.length === 0) {
     Promise.reject({ error: `not found appointment: ${appointment_id}` });
@@ -126,7 +126,9 @@ async function fetchTelehealthVisitForPatient(user: TelehealthUser, appointment_
 
 
 /* --------------------------------------------------------------------------------------------------------------
- * fetch the waiting room content for the specified provider from server datastore
+ * fetch the all waiting room content from server datastore
+ *
+ * return content assigned to specified provider first
  * --------------------------------------------------------------------------------------------------------------
  */
 async function fetchAllContent(provider: ProviderUser): Promise<Array<EHRContent>> {
@@ -138,13 +140,19 @@ async function fetchAllContent(provider: ProviderUser): Promise<Array<EHRContent
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${provider.token}`
     }
-  }).then(r => r.json());
+  }).then((r) => r.json());
+
+  const allContent : EHRContent [] = tuple.map((t) => instantiateContent(t));
+  const assignedContent : EHRContent = allContent.find((c) => {
+    return c.provider_ids.some((p) => p === provider.id);
+  });
 
   const result : EHRContent[] = [];
-  tuple.forEach(t => {
-    const _content = instantiateContent(tuple[0]);
-    result.push(_content);
-  });
+  result.push(assignedContent);
+  for(const c of allContent) {
+    if (c.id === assignedContent.id) continue;
+    result.push(c);
+   }
 
   return Promise.resolve(result);
 }
@@ -153,16 +161,16 @@ async function fetchAllContent(provider: ProviderUser): Promise<Array<EHRContent
  * fetch the waiting room content for the specified provider from server datastore
  * --------------------------------------------------------------------------------------------------------------
  */
-async function fetchContentForProvider(provider: ProviderUser): Promise<EHRContent> {
+async function fetchContentForPatient(patient: TelehealthUser, provider_id): Promise<EHRContent> {
   const tuple = await fetch(Uris.backendRoot + '/datastore/contents', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GET', provider_id: provider.id }),
+    body: JSON.stringify({ action: 'GET', provider_id: provider_id }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${provider.token}`
+      'Authorization': `Bearer ${patient.token}`
     }
-  }).then(r => r.json());
+  }).then((r) => r.json());
 
   if(tuple.length === 0) {
     Promise.reject({ error: 'not found any content' });
@@ -173,9 +181,34 @@ async function fetchContentForProvider(provider: ProviderUser): Promise<EHRConte
   return Promise.resolve(_content);
 }
 
+
+/* --------------------------------------------------------------------------------------------------------------
+ * assign waiting room content to the specified provider
+ * --------------------------------------------------------------------------------------------------------------
+ */
+async function assignContentToProvider(content_id: string, provider: ProviderUser): Promise<string> {
+  const tuple = await fetch(Uris.backendRoot + '/datastore/contents', {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'ASSIGN',
+      content_id: content_id,
+      provider_id: provider.id
+    }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${provider.token}`
+    }
+  }).then((r) => r.json());
+
+  return Promise.resolve(content_id);
+}
+
+
 export default {
   fetchAllTelehealthVisits,
   fetchTelehealthVisitForPatient,
   fetchAllContent,
-  fetchContentForProvider,
+  fetchContentForPatient,
+  assignContentToProvider,
 };

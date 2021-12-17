@@ -12,27 +12,22 @@ const { upsertSyncDocument } = require(Runtime.getFunctions()['datastore/datasto
 
 // --------------------------------------------------------------------------------
 async function seedResource(context, syncServiceSid, seedAssetPath) {
+  // open private asset
+  const asset = Runtime.getAssets()[seedAssetPath];
+  const bundle = JSON.parse(asset.open());
+  assert(bundle.total === bundle.entry.length, 'bundle checksum error!!!');
+  const syncDocumentName = path.basename(asset.path)
+    .replace(/.+FHIR\//, '')
+    .replace('.private.json', '')
+    .replace('.json', '');
 
-  try {
-    // open private asset
-    const asset = Runtime.getAssets()[seedAssetPath];
-    const bundle = JSON.parse(asset.open());
-    assert(bundle.total === bundle.entry.length, 'bundle checksum error!!!');
-    const syncDocumentName = path.basename(asset.path)
-      .replace(/.+FHIR\//, '')
-      .replace('.private.json', '')
-      .replace('.json', '');
+  const document = await upsertSyncDocument(context, syncServiceSid, syncDocumentName, bundle);
 
-    const document = await upsertSyncDocument(context, syncServiceSid, syncDocumentName, bundle);
-
-    return {
-      uniqueName: document.uniqueName,
-      sid: document.sid,
-      resourceCount: document.data.entry.length,
-    };
-  } catch (err) {
-    throw err;
-  }
+  return {
+    uniqueName: document.uniqueName,
+    sid: document.sid,
+    resourceCount: document.data.entry.length,
+  };
 }
 
 // --------------------------------------------------------------------------------
@@ -44,17 +39,21 @@ exports.handler = async function(context, event, callback) {
   try {
     const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
 
-    const result = [];
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Appointments.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Conditions.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/CoverageEligibilityResponses.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/DocumentReferences.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/MedicationStatements.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Patients.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/PractitionerRoles.json'));
-    result.push(await seedResource(context, TWILIO_SYNC_SID, '/datastore/FHIR/Practitioners.json'));
+    const assets = Runtime.getAssets(); // get all private assets
+    resources = Object.values(assets)
+      .map((e) => {
+        return e.path.replace(/.+assets/, '').replace('.private', '');
+      });
+    console.log(THIS, `found ${resources.length} FHIR resources to seed`);
 
-    return callback(null, result);
+    const response = [];
+    for(r of resources) {
+      const document = await seedResource(context, TWILIO_SYNC_SID, r);
+      console.log(THIS, `... upserted ${r}, ${document.resourceCount} resources`);
+      response.push(document);
+    }
+
+    return callback(null, response);
 
   } catch (err) {
     console.log(THIS, err);
