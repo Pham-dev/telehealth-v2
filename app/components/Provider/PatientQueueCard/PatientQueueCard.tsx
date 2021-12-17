@@ -1,12 +1,12 @@
-import { joinClasses } from '../../../utils';
-import { useEffect } from 'react';
 import { Card } from '../../Card';
 import { CardHeading } from '../CardHeading';
 import {TelehealthVisit} from "../../../types";
+import { PatientVisitCard } from './PatientVisitCard';
 
 export interface PatientQueueCardProps {
   className?: string;
   visitQueue: TelehealthVisit[];
+  onDemandQueue: TelehealthVisit[];
 }
 
 function calculateWaitTime(visitStartTimeLTZ) {
@@ -19,12 +19,7 @@ function calculateWaitTime(visitStartTimeLTZ) {
   return (diffSeconds > 0 ? 'Waiting ': 'Starting ') + hhmmdd;
 }
 
-export const PatientQueueCard = ({ className, visitQueue }: PatientQueueCardProps) => {
-
-  useEffect(() => {
-    console.log('PatientQueueCard visitQueue=', visitQueue);
-  }, []);
-
+export const PatientQueueCard = ({ className, onDemandQueue, visitQueue }: PatientQueueCardProps) => {
   return (
     <Card className={className}>
       <CardHeading>Patient Queue</CardHeading>
@@ -32,24 +27,11 @@ export const PatientQueueCard = ({ className, visitQueue }: PatientQueueCardProp
         <div>Patient</div>
         <div>Reason For Visit:</div>
       </div>
-      {visitQueue.map((visit, i) => (
-        <div
-          key={i}
-          className={joinClasses(
-            'grid grid-cols-2 gap-4 font-bold text-xs px-1 py-2',
-            i % 2 ? '' : 'bg-[#FAFAFA]'
-          )}
-        >
-          <div>
-            <a className="text-link underline">{visit.ehrPatient.name}</a>
-            <div className="font-bold text-light">
-              { calculateWaitTime(visit.ehrAppointment.start_datetime_ltz) }
-            </div>
-          </div>
-          <div className="line-clamp-2 overflow-ellipsis overflow-hidden text-dark">
-            {visit.ehrAppointment.reason}
-          </div>
-        </div>
+      {onDemandQueue.map((visit, index) => (
+        <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} isOnDemand={true}/>
+      ))}
+      {visitQueue.map((visit, index) => (
+        <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} />
       ))}
     </Card>
   );
