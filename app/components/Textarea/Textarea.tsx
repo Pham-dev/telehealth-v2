@@ -8,6 +8,7 @@ export interface TextareaProps
   > {
   register?: UseFormRegister<any>;
   registerOptions?: RegisterOptions;
+  setText?: (text: string) => void;
 }
 
 export const Textarea = ({
@@ -15,10 +16,12 @@ export const Textarea = ({
   name,
   register,
   registerOptions,
+  setText,
   ...props
 }: TextareaProps) => {
   return (
     <textarea
+      onChange={e => setText(e.target.value)}
       className={joinClasses(
         'px-3 py-2 border border-light rounded-md',
         className

@@ -9,6 +9,7 @@ import clientStorage from '../../../services/clientStorage';
 import { CURRENT_VISIT_ID } from '../../../constants';
 import ProviderVideoContextLayout from '../../../components/Provider/ProviderLayout';
 import useChatContext from '../../../components/Base/ChatProvider/useChatContext/useChatContext';
+import useSyncContext from '../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 
 const VideoPage: TwilioPage = () => {
   const { user } = useVisitContext();
@@ -25,8 +26,9 @@ const VideoPage: TwilioPage = () => {
             if(!roomTokenResp.roomAvailable) {
               router.push('/provider/dashboard');
             }
-            chatConnect(roomTokenResp.token);
-            videoConnect(roomTokenResp.token); 
+            const token = roomTokenResp.token;
+            chatConnect(token);
+            videoConnect(token); 
           });
         });
     }

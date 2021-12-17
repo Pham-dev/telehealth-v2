@@ -21,8 +21,9 @@ const VideoPage = () => {
         if(!roomTokenResp.roomAvailable) {
           router.push('/patient/waiting-room');
         }
-        chatConnect(roomTokenResp.token);
-        videoConnect(roomTokenResp.token);
+        const token = roomTokenResp.token;
+        chatConnect(token);
+        videoConnect(token);
       });
     }
   },[router, room]);

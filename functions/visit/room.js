@@ -4,14 +4,10 @@
 const AccessToken = Twilio.jwt.AccessToken;
 const VideoGrant = AccessToken.VideoGrant;
 const ChatGrant = AccessToken.ChatGrant;
-//const SyncGrant = AccessToken.SyncGrant;
 const MAX_ALLOWED_SESSION_DURATION = 14400;
-
-//const { getParam } = require(Runtime.getFunctions()['helpers'].path);
 
 module.exports.handler = async (context, event, callback) => {
   const { ACCOUNT_SID, TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET, ROOM_TYPE, TWILIO_CONVERSATIONS_SID } = context;
-  //const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
 
   // TODO: Add Patient Auth Handler
   const { validateAndDecodeAppToken } = require(Runtime.getFunctions()['authentication-helper'].path);
@@ -110,9 +106,6 @@ module.exports.handler = async (context, event, callback) => {
   // Add chat grant to token
   const chatGrant = new ChatGrant({ serviceSid: TWILIO_CONVERSATIONS_SID });
   token.addGrant(chatGrant);
-
-  // const syncGrant = new SyncGrant({ serviceSid: TWILIO_SYNC_SID });
-  // token.addGrant(syncGrant);
 
   // Return token
   response.setStatusCode(200);

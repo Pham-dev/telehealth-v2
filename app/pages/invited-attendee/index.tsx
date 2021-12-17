@@ -25,6 +25,9 @@ const InvitedAttendeePage = () => {
         clientStorage.saveToStorage(STORAGE_USER_KEY, u);
         return visitService.getVisitForPatient(u);
       }).then(v => {
+        // need to get the visit
+        // call the dataStore service
+        // since it is third party no need to call ehr integration
         if(v) {
           clientStorage.saveToStorage(STORAGE_VISIT_KEY, v);
           setIsInitialized(true);
