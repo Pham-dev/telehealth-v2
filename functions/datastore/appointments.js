@@ -39,8 +39,9 @@ function transform_appointment_to_fhir(appointment) {
   const fhir_appointment = {
     resourceType: 'Appointment',
     id: a.appointment_id,
+    supportingInformation: (a.appointment_type === 'WALKIN') ? [] : a.appointment_references,
     status: (a.appointment_type === 'WALKIN') ? 'arrived' : 'booked',
-    appoinmentType: {
+    appointmentType: {
       coding: [
         {
           system: 'http://terminology.hl7.org/CodeSystem/v2-0276',
@@ -254,7 +255,7 @@ exports.handler = async function(context, event, callback) {
 
       case 'ADD': {
         assert(event.appointment, 'Mssing event.appointment!!!');
-        const appointment = JSON.parse(event.appointment);
+        const appointment = event.appointment;
         assert(appointment.appointment_reason, 'Mssing appointment_reason!!!');
         assert(appointment.appointment_references, 'Mssing appointment_references!!!');
         assert(appointment.patient_id, 'Mssing patient_id!!!');

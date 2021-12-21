@@ -5,7 +5,7 @@ import React from 'react';
 export type TwilioPage = NextPage & { Layout?: React.FC }
 
 export interface EHRPatient {
-  id: string,
+  id?: string,
   name: string,
   family_name?: string,
   given_name: string,
@@ -28,12 +28,12 @@ export interface EHRProvider {
 
 
 export interface EHRAppointment {
-  id: string,
-  type: string,
-  start_datetime_ltz: Date,
-  end_datetime_ltz: Date,
-  reason: string,
-  references: string[],
+  id?: string,
+  type?: string,
+  start_datetime_ltz?: Date,
+  end_datetime_ltz?: Date,
+  reason?: string,
+  references?: string[],
   patient_id: string,
   provider_id: string,
 }

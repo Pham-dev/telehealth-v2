@@ -7,6 +7,8 @@ import { Uris } from '../../../../services/constants';
 import useSyncContext from '../../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
 import useOnDemandContext from '../../../../components/Base/OnDemandProvider/useOnDemandContext/useOnDemandContext';
+import datastoreService from '../../../../services/datastoreService';
+import { EHRAppointment, EHRPatient } from '../../../../types';
 
 /* 
 * After landing on this page, a visitId should be created from EHR
@@ -18,24 +20,39 @@ const PaymentReceivedPage = () => {
   const router = useRouter();
   const [passcode, setPasscode] = useState<string>();
   const [isError, setIsError] = useState<boolean>(false);
-  const { syncClient, onDemandMap } = useSyncContext();
-  //const { patient, setPatient } = useState(null);
-
+  const { syncClient, syncToken, onDemandStream } = useSyncContext();
+  const [appt, setAppt] = useState<EHRAppointment>(null);
   const { 
     firstName,
     lastName,
-    email,
     phoneNumber,
     gender,
-    needTranslator,
-    medications,
     reasonForVisit,
     preExistingConditions
    } = useOnDemandContext();
   
-  useEffect(() => {
-    console.log(firstName, lastName, email, phoneNumber, gender, needTranslator, medications, reasonForVisit, preExistingConditions);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const publishOnDemandVisit = async () => {
+    const ehrPatient: EHRPatient = {
+      name: lastName,
+      family_name: lastName,
+      given_name: firstName,
+      phone: phoneNumber,
+      gender: gender
+    }
+    // combine calls to reduce latency time
+    const [provider, patient] = await Promise.all([
+      datastoreService.fetchProviderOnCall(syncToken),
+      datastoreService.addPatient(syncToken, ehrPatient)
+    ]);
+    const appointment: EHRAppointment = {
+      provider_id: provider.id,
+      patient_id: patient.id,
+      reason: reasonForVisit,
+      references: [],
+    }
+    setAppt(appointment);
+  }
 
   // The values in this fetch statement will be gathered from EHR integration
   useEffect(() => {
@@ -56,73 +73,27 @@ const PaymentReceivedPage = () => {
       setIsError(true);
       new Error(err);
     })
-  }, []);
+  }, [syncToken]);
 
-  // fetch provider
-  // add patient
-  // add appointment
   useEffect(() => {
-
+    publishOnDemandVisit();
   }, []);
 
   // Will need to change this to real data get call.
   useEffect(() => {
-    if (syncClient && onDemandMap) {
-      onDemandMap.set('p4000000', {
-          "resourceType": "Appointment",
-          "id": "a4000000",
-          "status": "booked",
-          "appointmentType": {
-            "coding": [
-              {
-                "system": "http://terminology.hl7.org/CodeSystem/v2-0276",
-                "code": "ROUTINE"
-              }
-            ]
-          },
-          "reasonCode": [
-            {
-              "text": "I think I twiseted my ankle earlier this week when I jumped down some stairs but I can't tell, I attached a photo"
-            }
-          ],
-          "supportingInformation": [
-            {
-              "reference": "datastore/images/a1000000-ankle.png"
-            }
-          ],
-          "start": "2021-01-01T17:00:00Z",
-          "end": "2021-01-01T17:30:00Z",
-          "participant": [
-            {
-              "actor": {
-                "reference": "Patient/p4000000"
-              }
-            },
-            {
-              "type": [
-                {
-                  "coding": [
-                    {
-                      "system": "http://hl7.org/fhir/ValueSet/encounter-participant-type",
-                      "code": "ATND"
-                    }
-                  ]
-                }
-              ],
-              "actor": {
-                "reference": "Practitioner/d1000"
-              }
-            }
-          ]
-      }, { ttl: 14400})
-      .then(item => {
-        console.log('Map SyncMapItem set() successful, item data:', item.data);
+    if (syncClient && onDemandStream && appt && syncToken) {
+      onDemandStream.publishMessage({
+        appointment: appt,
+        patientSyncToken: syncToken,
       })
-      .catch((error) => {
-        console.error('Map SyncMapItem set() failed', error);
-      });
+        .then(message => {
+          console.log('Stream publishMessage() successful, message SID:', message);
+        })
+        .catch(error => {
+          console.error('Stream publishMessage() failed', error);
+        })
     }
-  }, [onDemandMap, syncClient])
+  }, [appt, onDemandStream, syncClient, syncToken])
 
 
   // No check needed because the payment is already validated
