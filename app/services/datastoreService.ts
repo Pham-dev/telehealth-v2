@@ -244,16 +244,16 @@ async function addPatient(token: string, ehrPatient: EHRPatient): Promise<EHRPat
   assert(ehrPatient.family_name, 'Missing family_name!!!');
   assert(ehrPatient.given_name, 'Missing given_name!!!');
   assert(ehrPatient.phone, 'Missing phone!!!');
-  assert(ehrPatient.phone, 'Missing phone!!!');
 
   const _patientData = {
+    patient_name: ehrPatient.given_name + " " + ehrPatient.family_name,
     patient_family_name: ehrPatient.family_name,
     patient_given_name: ehrPatient.given_name,
     patient_phone: ehrPatient.phone,
     ...(ehrPatient.phone && { patient_phone: ehrPatient.phone }),
     ...(ehrPatient.email && { patient_email: ehrPatient.email }),
-    patient_gender: ehrPatient.phone,
-    patient_langugage: ehrPatient.language ?  ehrPatient.language : 'English',
+    patient_gender: ehrPatient.gender,
+    patient_language: ehrPatient.language ?  ehrPatient.language : 'English',
     patient_medications: ehrPatient.medications ? ehrPatient.medications: [],
     patient_conditions: ehrPatient.conditions ? ehrPatient.conditions : [],
   };
@@ -266,7 +266,7 @@ async function addPatient(token: string, ehrPatient: EHRPatient): Promise<EHRPat
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     }
-  }).then((r) => r.json());
+  }).then(async (r) => await r.json());
 
   if (! newPatientData) {
     Promise.reject({ error: 'Unable to create new patient in EHR!!!' });

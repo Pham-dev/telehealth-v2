@@ -224,7 +224,7 @@ exports.handler = async function(context, event, callback) {
 
       case 'ADD': {
         assert(event.patient, 'Mssing event.patient!!!');
-        const patient = JSON.parse(event.patient);
+        const patient = event.patient;
         assert(patient.patient_name, 'Mssing patient_name!!!');
         assert(patient.patient_family_name, 'Mssing patient_family_name!!!');
         assert(patient.patient_given_name, 'Mssing patient_given_name!!!');

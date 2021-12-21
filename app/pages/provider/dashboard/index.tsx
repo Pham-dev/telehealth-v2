@@ -15,7 +15,7 @@ import { EHRContent } from '../../../types';
 import { useVisitContext } from '../../../state/VisitContext';
 import useSyncContext from '../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import { Uris } from '../../../services/constants';
-import { SyncMapItem } from 'twilio-sync';
+import { SyncStreamMessage } from 'twilio-sync';
 
 const DashboardPage: TwilioPage = () => {
   
@@ -27,21 +27,21 @@ const DashboardPage: TwilioPage = () => {
   const [ contentAssigned, setContentAssigned ] = useState<EHRContent>();
   const [ contentAvailable, setContentAvailable ] = useState<EHRContent[]>([]);
   const { user } = useVisitContext();
-  const { connect: syncConnect, syncClient, onDemandMap } = useSyncContext();
+  const { connect: syncConnect, syncClient, onDemandStream } = useSyncContext();
 
   // Gets Sync token to utilize Sync API prior to video room
   useEffect(() => {
-    fetch(Uris.get(Uris.visits.token), {
-      method: 'POST',
-      body: JSON.stringify({ action: "SYNC" }),
-      headers: { 
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-      }
-    }).then(async r => {
-      const syncToken = await r.json();
-      syncConnect(syncToken.token);
-    })
+      fetch(Uris.get(Uris.visits.token), {
+        method: 'POST',
+        body: JSON.stringify({ action: "SYNC" }),
+        headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+      }).then(async r => {
+        const syncToken = await r.json();
+        syncConnect(syncToken.token);
+      })
   }, [syncConnect]);
 
   useEffect(() => {
@@ -55,9 +55,12 @@ const DashboardPage: TwilioPage = () => {
 
   useEffect(() => {
     datastoreService.fetchAllTelehealthVisits(user)
-      .then(tv => {
-        setVisitQueue(tv);
-        setVisitNext(tv[0]);
+      .then(allVisits => {
+        const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
+        const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
+        setOnDemandQueue(onDemandVisits);
+        setVisitQueue(regularVisits);
+        setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
       });
 
     datastoreService.fetchAllContent(user)
@@ -67,68 +70,36 @@ const DashboardPage: TwilioPage = () => {
           c.provider_ids.some(e => e === user.id);
         }));
       });
-  }, [user]);
+  }, []);
 
   useEffect(() => {
-    const itemAdded = (item: SyncMapItem) => {
-      console.log("itemAdded: ", item);
-      const onDemandVisit = {
-        id: "a4000000",
-        visitDateTime: new Date(),
-        roomName: "Hello World",
-        ehrPatient: {
-          name: "Sean Jackson",
-          id: "a4000000",
-          phone: "5101234567",
-          gender: "male"
-        },
-        ehrAppointment: {
-          id: "a4000000",
-          type: "appointment",
-          reason: "I broke my femur",
-          references: ["hello"],
-          patient_id: "a4000000",
-          provider_id: "d1000",
-          start_datetime_ltz: new Date(),
-        }
-      } as TelehealthVisit;
-      setOnDemandQueue(prev => [...prev, onDemandVisit]);
+    const fetchVisits = async () => {
+      datastoreService.fetchAllTelehealthVisits(user)
+        .then(async allVisits => {
+          console.log(allVisits);
+          const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
+          const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
+          setOnDemandQueue(onDemandVisits);
+          setVisitQueue(regularVisits);
+          setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
+        });
     };
-    const itemUpdated = (item: SyncMapItem) => {
-      // @ts-ignore
-      console.log("itemUpdated: ", item.item);
-      // @ts-ignore
-      const onDemandVisit = {
-        id: "a4000000",
-        visitDateTime: new Date(),
-        roomName: "Hello World",
-        ehrPatient: {
-          name: "Sean Jackson",
-          id: "a4000000",
-          phone: "5101234567",
-          gender: "male"
-        },
-        ehrAppointment: {
-          id: "a4000000",
-          type: "appointment",
-          reason: "I broke my femur",
-          references: ["hello"],
-          patient_id: "a4000000",
-          provider_id: "d1000",
-          start_datetime_ltz: new Date(),
-        }
-      } as TelehealthVisit;
-      setOnDemandQueue(prev => [...prev, onDemandVisit]);
-    };
-    if (syncClient && onDemandMap) {
-      onDemandMap.on('itemAdded', itemAdded);
-      onDemandMap.on('itemUpdated', itemUpdated);
-      return () => {
-        onDemandMap.off('itemAdded', itemAdded);
-        onDemandMap.off('itemUpdated', itemUpdated);
+
+    const publish = async (args: SyncStreamMessage) => {
+      if (args) {
+        // @ts-ignore
+        await datastoreService.addAppointment(args.message.data.patientSyncToken, args.message.data.appointment);
+        fetchVisits();
       }
     }
-  }, [onDemandMap, syncClient]);
+
+    if (syncClient && onDemandStream) {
+      onDemandStream.on('messagePublished', publish)
+      return () => {
+        onDemandStream.off('messagePublished', publish);
+      }
+    }
+  }, [onDemandStream, syncClient, user]);
 
   return (
     <Layout>

@@ -17,7 +17,6 @@ const PaymentPage = () => {
   const router = useRouter();
   const [enterManually, setEnterManually] = useState(false);
   const { connect: syncConnect } = useSyncContext();
-  const { firstName } = useOnDemandContext();
 
   // Initialize the Sync Client prior to reduce backend API calls latency
   useEffect(() => {
