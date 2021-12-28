@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert } from '../../../../components/Alert';
 import { Button } from '../../../../components/Button';
 import { Layout } from '../../../../components/Patient';
@@ -31,28 +31,29 @@ const PaymentReceivedPage = () => {
     preExistingConditions
    } = useOnDemandContext();
   
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const publishOnDemandVisit = async () => {
-    const ehrPatient: EHRPatient = {
-      name: lastName,
-      family_name: lastName,
-      given_name: firstName,
-      phone: phoneNumber,
-      gender: gender
-    }
-    // combine calls to reduce latency time
-    const [provider, patient] = await Promise.all([
-      datastoreService.fetchProviderOnCall(syncToken),
-      datastoreService.addPatient(syncToken, ehrPatient)
-    ]);
-    const appointment: EHRAppointment = {
-      provider_id: provider.id,
-      patient_id: patient.id,
-      reason: reasonForVisit,
-      references: [],
-    }
-    setAppt(appointment);
-  }
+  const publishOnDemandVisit = useCallback(
+    async () => {
+      const ehrPatient: EHRPatient = {
+        name: lastName,
+        family_name: lastName,
+        given_name: firstName,
+        phone: phoneNumber,
+        gender: gender
+      }
+  
+      // combine calls to reduce latency time
+      const [provider, patient] = await Promise.all([
+        datastoreService.fetchProviderOnCall(syncToken),
+        datastoreService.addPatient(syncToken, ehrPatient)
+      ]);
+      const appointment: EHRAppointment = {
+        provider_id: provider.id,
+        patient_id: patient.id,
+        reason: reasonForVisit,
+        references: [],
+      }
+      setAppt(appointment);
+    }, []);
 
   // The values in this fetch statement will be gathered from EHR integration
   useEffect(() => {
@@ -86,12 +87,14 @@ const PaymentReceivedPage = () => {
         appointment: appt,
         patientSyncToken: syncToken,
       })
-        .then(message => {
-          console.log('Stream publishMessage() successful, message SID:', message);
-        })
-        .catch(error => {
-          console.error('Stream publishMessage() failed', error);
-        })
+      .then(async message => {
+        console.log('Stream publishMessage() successful, message SID:', message);
+        //@ts-ignore
+        await datastoreService.addAppointment(syncToken, message.data.appointment);
+      })
+      .catch(error => {
+        console.error('Stream publishMessage() failed', error);
+      })
     }
   }, [appt, onDemandStream, syncClient, syncToken])
 
