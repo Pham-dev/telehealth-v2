@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Uris } from '../../../services/constants';
+import datastoreService from '../../../services/datastoreService';
 import { US_STATES, ZIP_REGEX } from '../../../utils';
 import useSyncContext from '../../Base/SyncProvider/useSyncContext/useSyncContext';
 import { Button } from '../../Button';
@@ -11,13 +12,10 @@ import { Select } from '../../Select';
 export interface PaymentFormProps {}
 
 export const PaymentForm = ({}: PaymentFormProps) => {
-  // const { connect: syncConnect } = useSyncContext();
   const router = useRouter();
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
-    // validate payment here
-    // if success, go to next page, else show payment failed try again
     router.push(`/patient/on-demand/payment/received`);
   }
 

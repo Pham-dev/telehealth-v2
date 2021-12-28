@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import useVideoContext from '../../../components/Base/VideoProvider/useVideoContext/useVideoContext';
 import {
   AudioVideoCard,
@@ -26,8 +26,22 @@ const DashboardPage: TwilioPage = () => {
   const [ onDemandQueue, setOnDemandQueue ] = useState<TelehealthVisit[]>([]);
   const [ contentAssigned, setContentAssigned ] = useState<EHRContent>();
   const [ contentAvailable, setContentAvailable ] = useState<EHRContent[]>([]);
+  const [ isNewVisit, setIsNewVisit ] = useState<boolean>(false);
   const { user } = useVisitContext();
   const { connect: syncConnect, syncClient, onDemandStream } = useSyncContext();
+
+  const fetchVisits = useCallback(async () => {
+    datastoreService.fetchAllTelehealthVisits(user)
+      .then(async allVisits => {
+        console.log(allVisits);
+        const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
+        const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
+        setOnDemandQueue(onDemandVisits);
+        setVisitQueue(regularVisits);
+        setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
+      });
+    }, []
+  ); 
 
   // Gets Sync token to utilize Sync API prior to video room
   useEffect(() => {
@@ -54,15 +68,7 @@ const DashboardPage: TwilioPage = () => {
   }, [getAudioAndVideoTracks, mediaError]);
 
   useEffect(() => {
-    datastoreService.fetchAllTelehealthVisits(user)
-      .then(allVisits => {
-        const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
-        const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
-        setOnDemandQueue(onDemandVisits);
-        setVisitQueue(regularVisits);
-        setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
-      });
-
+    fetchVisits();
     datastoreService.fetchAllContent(user)
       .then(cArray => {         
         setContentAvailable(cArray);
@@ -73,22 +79,14 @@ const DashboardPage: TwilioPage = () => {
   }, []);
 
   useEffect(() => {
-    const fetchVisits = async () => {
-      datastoreService.fetchAllTelehealthVisits(user)
-        .then(async allVisits => {
-          console.log(allVisits);
-          const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
-          const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
-          setOnDemandQueue(onDemandVisits);
-          setVisitQueue(regularVisits);
-          setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
-        });
-    };
-
     const publish = async (args: SyncStreamMessage) => {
       if (args) {
+        console.log("message received", args);
         // @ts-ignore
-        await datastoreService.addAppointment(args.message.data.patientSyncToken, args.message.data.appointment);
+        if (args.message.data.patientSyncToken) {
+          console.log("it works!!");
+          setIsNewVisit(true);
+        }
         fetchVisits();
       }
     }
@@ -109,7 +107,7 @@ const DashboardPage: TwilioPage = () => {
           <InviteCard />
         </div>
         <div>
-          <PatientQueueCard className="my-2" onDemandQueue={onDemandQueue} visitQueue={visitQueue} />
+          <PatientQueueCard className="my-2" onDemandQueue={onDemandQueue} visitQueue={visitQueue} isNewVisit={isNewVisit} setIsNewVisit={setIsNewVisit}/>
           <ContentManagementCard className="my-2" contentAssigned={contentAssigned} contentAvailable={contentAvailable}/>
         </div>
         <div className="order-first lg:order-last">

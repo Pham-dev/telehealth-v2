@@ -2,11 +2,15 @@ import { Card } from '../../Card';
 import { CardHeading } from '../CardHeading';
 import {TelehealthVisit} from "../../../types";
 import { PatientVisitCard } from './PatientVisitCard';
+import { Button } from '../../Button/Button';
+import { useCallback } from 'react';
 
 export interface PatientQueueCardProps {
   className?: string;
   visitQueue: TelehealthVisit[];
   onDemandQueue: TelehealthVisit[];
+  isNewVisit: boolean;
+  setIsNewVisit: (isVisit:boolean) => void;
 }
 
 function calculateWaitTime(visitStartTimeLTZ) {
@@ -19,10 +23,22 @@ function calculateWaitTime(visitStartTimeLTZ) {
   return (diffSeconds > 0 ? 'Waiting ': 'Starting ') + hhmmdd;
 }
 
-export const PatientQueueCard = ({ className, onDemandQueue, visitQueue }: PatientQueueCardProps) => {
+export const PatientQueueCard = ({ className, onDemandQueue, visitQueue, isNewVisit, setIsNewVisit }: PatientQueueCardProps) => {
+  const refreshQueueCard = useCallback(() => {
+      setIsNewVisit(false);
+      window.location.reload();
+    }, [setIsNewVisit]
+  );
+
   return (
     <Card className={className}>
-      <CardHeading>Patient Queue</CardHeading>
+      <CardHeading>
+        Patient Queue {"  "}{isNewVisit && 
+        <Button onClick={refreshQueueCard}>
+          Refresh
+        </Button>
+      }
+      </CardHeading>
       <div className="px-1 py-2 grid grid-cols-2 gap-4 font-bold text-xs">
         <div>Patient</div>
         <div>Reason For Visit:</div>
