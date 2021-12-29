@@ -15,6 +15,7 @@ export interface VideoControlsProps {
   toggleScreenShare?: ControlClickEvent;
   toggleSettings?: ControlClickEvent;
   toggleVideo?: ControlClickEvent;
+  toggleEndCallModal?: ControlClickEvent;
 }
 
 export const VideoControls = ({
@@ -26,6 +27,7 @@ export const VideoControls = ({
   toggleScreenShare,
   toggleSettings,
   toggleVideo,
+  toggleEndCallModal
 }: VideoControlsProps) => {
   const buttonClasses = 'mx-1.5';
   const addPersonRef = useRef();
@@ -93,12 +95,15 @@ export const VideoControls = ({
           onClick={toggleSettings}
         />
       )}
-      <Button
-        className={buttonClasses}
-        as="a"
-        href="/patient/video/disconnected"
-        icon="call_end"
-      />
+      {toggleEndCallModal && (
+        <Button
+          className={buttonClasses}
+          // as="a"
+          // href="/patient/video/disconnected"
+          icon="call_end"
+          onClick={toggleEndCallModal}
+        />
+      )}
     </div>
   );
 };
