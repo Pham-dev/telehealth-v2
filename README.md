@@ -47,7 +47,7 @@ and install with default options.
 After installation make sure to start Docker desktop.
 
 
-###Installation Steps
+### Installation Steps
 
 
 *Installation of this application is supported on the browser that support
@@ -70,7 +70,7 @@ After installation make sure to start Docker desktop.
 
 3. Open http://localhost:3000/installer.html using a broswer.
 
-4. Followig instructions in the installer to complete installation & configuration.
+4. Follow the instructions in the installer to complete installation & configuration.
 
 5. Launch the admnistration page by clicking 'Open Application' button.
 
