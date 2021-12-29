@@ -17,6 +17,7 @@ import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/us
 import { roomService } from '../../../services/roomService';
 import useSelectedParticipant from '../../Base/VideoProvider/useSelectedParticipant/useSelectedParticipant';
 import { RemoteParticipant } from 'twilio-video';
+import { EndCallModal } from '../../EndCallModal';
 
 export interface VideoConsultationProps {}
 
@@ -26,6 +27,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   const [isAudioEnabled, toggleAudioEnabled] = useLocalAudioToggle();
   const [isVideoEnabled, toggleVideoEnabled] = useLocalVideoToggle();
   const [inviteModalRef, setInviteModalRef] = useState(null);
+  const [endCallModalVisible, setEndCallModalVisible] = useState(false);
   const [settingsModalRef, setSettingsModalRef] = useState(null);
   const [connectionIssueModalVisible, setConnectionIssueModalVisible] = useState(false);
   const participants = useParticipants();
@@ -41,6 +43,10 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     providerParticipant: null,
     visitorParticipant: null,
   });
+
+  function toggleEndCallModal() {
+    setEndCallModalVisible(!endCallModalVisible);
+  }
 
   useEffect(() => {
     if (room) {
@@ -120,6 +126,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
             setSettingsModalRef(settingsModalRef ? null : event?.target)
           }
           toggleVideo={toggleVideoEnabled}
+          toggleEndCallModal={toggleEndCallModal}
         />
         <div className="absolute bottom-6">
           <PoweredByTwilio inverted />
@@ -151,6 +158,11 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         isRecording={isRecording}
         isVisible={!!settingsModalRef}
         toggleRecording={toggleRecordingCb}
+      />
+      <EndCallModal
+        close={toggleEndCallModal}
+        isVisible={endCallModalVisible}
+        isProvider={true}
       />
     </div>
   );

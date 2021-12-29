@@ -16,13 +16,18 @@ import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/us
 import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/useLocalVideoToggle';
 import useParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
 import useLocalParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
+import { EndCallModal } from '../../EndCallModal';
+import { Participant } from 'twilio-video';
+import { useRouter } from 'next/router';
 
 export interface VideoConsultationProps {}
 
 export const VideoConsultation = ({}: VideoConsultationProps) => {
+  const router = useRouter();
   const [isAudioEnabled, toggleAudioEnabled] = useLocalAudioToggle();
   const [isVideoEnabled, toggleVideoEnabled] = useLocalVideoToggle();
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [endCallModalVisible, setEndCallModalVisible] = useState(false);
   const [connectionIssueModalVisible, setConnectionIssueModalVisible] = useState(false);
   const roomState = useRoomState();
   const { user, visit } = useVisitContext();
@@ -39,7 +44,24 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     patientParticipant: null,
     providerParticipant: null,
     visitorParticipant: null
-  });  
+  });
+  
+  useEffect(() => {
+    const disconnectFromRoom = (participant: Participant) => {
+      if (participant.identity === callState.providerParticipant.identity) {
+        room.disconnect();
+        router.push('/patient/visit-survey/');
+      }
+    }
+    if (room && callState.providerParticipant) {
+      room.on('participantDisconnected', disconnectFromRoom);
+      return () => {
+        room.off('participantDisconnected', disconnectFromRoom);
+      }
+    }
+  }, [room]);
+  
+
   useEffect(() => {
     if (room) {
       setCallState(prev => {
@@ -66,6 +88,9 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     }
   }, [networkQualityLevel, connectionIssueTimeout]);
   
+  function toggleEndCallModal() {
+    setEndCallModalVisible(!endCallModalVisible);
+  }
 
   function toggleInviteModal() {
     setInviteModalVisible(!inviteModalVisible);
@@ -181,6 +206,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
               toggleChat={() => setIsChatWindowOpen(!isChatWindowOpen)}
               toggleVideo={toggleVideoEnabled}
               toggleAudio={toggleAudioEnabled}
+              toggleEndCallModal={toggleEndCallModal}
             />
           </>
         )):(<></>)}
@@ -192,6 +218,11 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
       <InviteParticipantModal
         close={toggleInviteModal}
         isVisible={inviteModalVisible}
+      />
+      <EndCallModal
+        close={toggleEndCallModal}
+        isVisible={endCallModalVisible}
+        isProvider={false}
       />
     </>
   );

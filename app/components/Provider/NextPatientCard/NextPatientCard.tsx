@@ -17,8 +17,8 @@ export interface NextPatientCardProps {
 
 export const NextPatientCard = ({ className, visitNext }: NextPatientCardProps) => {
   const router = useRouter();
-    const [ visitWaitTime, setVisitWaitTime ] = useState<string>();
-    const [ visitNeedTranslator, setVisitNeedTranslator ] = useState<string>();
+  const [ visitWaitTime, setVisitWaitTime ] = useState<string>();
+  const [ visitNeedTranslator, setVisitNeedTranslator ] = useState<string>();
 
   const Field = ({ label, value }) => (
     <li className="my-4 text-xs">

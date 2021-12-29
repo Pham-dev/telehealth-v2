@@ -33,7 +33,6 @@ const DashboardPage: TwilioPage = () => {
   const fetchVisits = useCallback(async () => {
     datastoreService.fetchAllTelehealthVisits(user)
       .then(async allVisits => {
-        console.log(allVisits);
         const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
         const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
         setOnDemandQueue(onDemandVisits);
