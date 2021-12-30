@@ -201,6 +201,8 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
 
             <VideoControls
               containerClass="mb-5 bg-[#FFFFFF4A] rounded-lg"
+              isMuted={!isAudioEnabled}
+              isVideoStopped={!isVideoEnabled}
               addParticipant={toggleInviteModal}
               flipCamera={() => setConnectionIssueModalVisible(true)}
               toggleChat={() => setIsChatWindowOpen(!isChatWindowOpen)}

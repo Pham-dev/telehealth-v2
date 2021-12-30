@@ -16,6 +16,8 @@ export interface VideoControlsProps {
   toggleSettings?: ControlClickEvent;
   toggleVideo?: ControlClickEvent;
   toggleEndCallModal?: ControlClickEvent;
+  isMuted: boolean;
+  isVideoStopped: boolean;
 }
 
 export const VideoControls = ({
@@ -27,10 +29,12 @@ export const VideoControls = ({
   toggleScreenShare,
   toggleSettings,
   toggleVideo,
-  toggleEndCallModal
+  toggleEndCallModal,
+  isMuted,
+  isVideoStopped
 }: VideoControlsProps) => {
   const buttonClasses = 'mx-1.5';
-  const addPersonRef = useRef();
+
   return (
     <div
       className={joinClasses(
@@ -65,7 +69,7 @@ export const VideoControls = ({
       {toggleVideo && (
         <Button
           className={buttonClasses}
-          icon="videocam"
+          icon={isVideoStopped ? "videocam_off": "videocam"}
           variant={ButtonVariant.tertiary}
           onClick={toggleVideo}
         />
@@ -73,7 +77,7 @@ export const VideoControls = ({
       {toggleAudio && (
         <Button
           className={buttonClasses}
-          icon="mic"
+          icon={isMuted ? "mic_off" : "mic"}
           variant={ButtonVariant.tertiary}
           onClick={toggleAudio}
         />
