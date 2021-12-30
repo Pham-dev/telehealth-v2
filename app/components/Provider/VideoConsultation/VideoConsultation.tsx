@@ -116,6 +116,8 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         </div>
         <VideoControls
           containerClass="absolute bottom-10 mb-5 bg-[#FFFFFF4A] rounded-lg"
+          isMuted={!isAudioEnabled}
+          isVideoStopped={!isVideoEnabled}
           addParticipant={(event) =>
             setInviteModalRef(inviteModalRef ? null : event?.target)
           }
