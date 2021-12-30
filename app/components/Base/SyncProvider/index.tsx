@@ -23,7 +23,7 @@ export const SyncProvider: React.FC = ({children}) => {
       setSyncToken(token);
       setSyncClient(newSyncClient);
     } catch (err) {
-      throw new Error('Error invalid token: ', err);
+      throw new Error(err);
     }
     
   }, []);
