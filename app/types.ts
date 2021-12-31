@@ -140,3 +140,11 @@ export interface BackgroundSettings {
   name: string;
   index?: number;
 }
+
+export type Reaction = 'thumb_up' | 'thumb_down';
+
+export interface PostVisitSurvey {
+  selectedThumb: Reaction;
+  selectedIssues: string[];
+  otherIssue: string;
+}

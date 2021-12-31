@@ -1,5 +1,9 @@
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { STORAGE_USER_KEY } from '../../constants';
+import clientStorage from '../../services/clientStorage';
+import datastoreService from '../../services/datastoreService';
+import { Reaction, TelehealthUser } from '../../types';
 import { joinClasses } from '../../utils';
 import { Alert } from '../Alert';
 import { Button } from '../Button';
@@ -10,8 +14,6 @@ import { Textarea } from '../Textarea';
 export interface VisitSurveyProps {
   isProvider?: boolean;
 }
-
-type Reaction = 'thumb_up' | 'thumb_down';
 
 const OPTIONS = [
   { value: "Couldn't hear" },
@@ -26,20 +28,21 @@ const OPTIONS = [
 
 export const VisitSurvey = ({ isProvider }: VisitSurveyProps) => {
   const router = useRouter();
-  const [selectedThumb, setSelectedThumb] = useState<Reaction>();
+  const [selectedThumb, setSelectedThumb] = useState<Reaction>(null);
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
   const [otherIssue, setOtherIssue] = useState<string>('');
+  const [token, setToken] = useState<string>('');
 
-  const ThumbIcon = ({ icon }: { icon: Reaction }) => (
+  const ThumbIcon = ({icon}: {icon: Reaction}) => (
     <button
       type="button"
-      onClick={() => {
+      onClick={async () => {
         setSelectedThumb(icon);
-        setSelectedIssues([]);
-        setOtherIssue('');
-
         if (icon === 'thumb_up') {
-          submitFeedback();
+          datastoreService.addSurvey(token, {selectedThumb: icon, selectedIssues: [], otherIssue: ''});
+          router.push(
+            `/${isProvider ? 'provider' : 'patient'}/visit-survey/thank-you`
+          );
         }
       }}
     >
@@ -62,13 +65,23 @@ export const VisitSurvey = ({ isProvider }: VisitSurveyProps) => {
 
   function submitFeedback(event = null) {
     event?.preventDefault();
-    // TODO - Submit form to back-end
-    console.log(selectedThumb, selectedIssues, otherIssue);
+    datastoreService.addSurvey(token, {selectedThumb, selectedIssues, otherIssue})
     resetForm();
     router.push(
       `/${isProvider ? 'provider' : 'patient'}/visit-survey/thank-you`
     );
   }
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const user = await clientStorage.getFromStorage<TelehealthUser>(STORAGE_USER_KEY);
+      console.log(user);
+      if (user) {
+        user.token ? setToken(user.token) : setToken('');
+      }
+    }
+    getCurrentUser();
+  }, [])
 
   return (
     <Alert
@@ -86,10 +99,10 @@ export const VisitSurvey = ({ isProvider }: VisitSurveyProps) => {
           <p className="my-4 text-dark">How was the video and audio quality?</p>
           <div className="my-4 flex justify-evenly">
             <div>
-              <ThumbIcon icon="thumb_up" />
+              <ThumbIcon icon={"thumb_up"} />
             </div>
             <div>
-              <ThumbIcon icon="thumb_down" />
+              <ThumbIcon icon={"thumb_down"} />
             </div>
           </div>
           {selectedThumb === 'thumb_down' && (
@@ -107,6 +120,7 @@ export const VisitSurvey = ({ isProvider }: VisitSurveyProps) => {
                 className="w-full"
                 rows={4}
                 placeholder="Tell us more about the other issues you encountered during the call"
+                setText={setOtherIssue}
               />
             </div>
           )}

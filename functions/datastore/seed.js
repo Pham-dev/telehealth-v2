@@ -40,6 +40,7 @@ exports.handler = async function(context, event, callback) {
     const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
 
     const assets = Runtime.getAssets(); // get all private assets
+    console.log("assets::", assets);
     resources = Object.values(assets)
       .map((e) => {
         return e.path.replace(/.+assets/, '').replace('.private', '');
