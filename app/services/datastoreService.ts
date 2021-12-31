@@ -340,6 +340,26 @@ async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
   return Promise.resolve(surveyResponse);
 }
 
+async function getSurveys(token: string): Promise<any> {
+  if (token == null) throw new Error("Unauthorized: Token is either null or undefined!");
+  
+  const surveys= fetch(Uris.backendRoot + '/datastore/surveys', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'GET'}),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then(res => res.json());
+
+  if (!surveys) {
+    Promise.reject({ error: "Unable to add post visit survey!"});
+  }
+
+  return Promise.resolve(surveys);
+}
+
 export default {
   fetchAllTelehealthVisits,
   fetchTelehealthVisitForPatient,
@@ -350,4 +370,5 @@ export default {
   addPatient,
   addAppointment,
   addSurvey,
+  getSurveys
 };

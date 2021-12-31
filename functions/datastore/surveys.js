@@ -1,7 +1,8 @@
+const SURVEY_RESOURCE = 'Surveys';
 
 exports.handler = async function(context, event, callback) {
-  const THIS = 'function: /datastore/surveys';
-  const SURVEY_RESOURCE = 'Surveys';
+  const THIS = 'FUNCTION: /datastore/surveys';
+
   const { getParam } = require(Runtime.getFunctions()['helpers'].path);
   const { read_fhir, save_fhir } = require(Runtime.getFunctions()['datastore/datastore-helpers'].path);
   const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
@@ -26,24 +27,20 @@ exports.handler = async function(context, event, callback) {
   const action = event.action ? event.action : null;
   const survey = event.survey ? event.survey : null;
 
-  
   try {
     switch (action) {
       case 'ADD': {
-        response.setBody({message: 'Hello I ADD!'})
-        response.setStatusCode(200);
-        const resources = await read_fhir(context, TWILIO_SYNC_SID, 'Appointments');
-        console.log("JYO", resources)
-
-        //resources.push(survey);
-        //const res = await save_fhir(context, TWILIO_SYNC_SID, SURVEY_RESOURCE);
-        //console.log(res);
+        const resources = await read_fhir(context, TWILIO_SYNC_SID, SURVEY_RESOURCE);
+        resources.push(survey);
+        const res = await save_fhir(context, TWILIO_SYNC_SID, SURVEY_RESOURCE, resources);
         response.setBody(survey);
+        response.setStatusCode(200);
         return callback(null, response);
       }
       case 'GET': {
+        const resources = await read_fhir(context, TWILIO_SYNC_SID, SURVEY_RESOURCE);
+        response.setBody(resources);
         response.setStatusCode(200);
-        response.setBody({message: 'Hello I GET!'})
         return callback(null, response);
       }
       default: {

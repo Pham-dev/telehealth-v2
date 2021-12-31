@@ -16,12 +16,13 @@ import { useVisitContext } from '../../../state/VisitContext';
 import useSyncContext from '../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import { Uris } from '../../../services/constants';
 import { SyncStreamMessage } from 'twilio-sync';
+import SurveyResultsCard from '../../../components/SurveyResultsCard/SurveyResultsCard';
 
 const DashboardPage: TwilioPage = () => {
   
   const { getAudioAndVideoTracks } = useVideoContext();
   const [ mediaError, setMediaError] = useState<Error>();
-  const [ visitNext, setVisitNext ] = useState<TelehealthVisit>();
+  const [ visitNext, setVisitNext ] = useState<TelehealthVisit>(null);
   const [ visitQueue, setVisitQueue ] = useState<TelehealthVisit[]>([]);
   const [ onDemandQueue, setOnDemandQueue ] = useState<TelehealthVisit[]>([]);
   const [ contentAssigned, setContentAssigned ] = useState<EHRContent>();
@@ -83,7 +84,6 @@ const DashboardPage: TwilioPage = () => {
         console.log("message received", args);
         // @ts-ignore
         if (args.message.data.patientSyncToken) {
-          console.log("it works!!");
           setIsNewVisit(true);
         }
         fetchVisits();
@@ -102,12 +102,13 @@ const DashboardPage: TwilioPage = () => {
     <Layout>
       <div className="grid gap-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1" >
         <div>
-          {visitNext && (<NextPatientCard className="my-2" visitNext={visitNext} />)}
+          <NextPatientCard className="my-2" visitNext={visitNext} />
           <InviteCard />
         </div>
         <div>
           <PatientQueueCard className="my-2" onDemandQueue={onDemandQueue} visitQueue={visitQueue} isNewVisit={isNewVisit} setIsNewVisit={setIsNewVisit}/>
           <ContentManagementCard className="my-2" contentAssigned={contentAssigned} contentAvailable={contentAvailable}/>
+          <SurveyResultsCard className="my-2"/>
         </div>
         <div className="order-first lg:order-last">
           <AudioVideoCard />

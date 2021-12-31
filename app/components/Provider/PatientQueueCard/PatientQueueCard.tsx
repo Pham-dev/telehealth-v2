@@ -4,6 +4,7 @@ import {TelehealthVisit} from "../../../types";
 import { PatientVisitCard } from './PatientVisitCard';
 import { Button } from '../../Button/Button';
 import { useCallback } from 'react';
+import LoadingSpinner from '../../LoadingSpinner/LoadingSpinner';
 
 export interface PatientQueueCardProps {
   className?: string;
@@ -39,16 +40,21 @@ export const PatientQueueCard = ({ className, onDemandQueue, visitQueue, isNewVi
         </Button>
       }
       </CardHeading>
-      <div className="px-1 py-2 grid grid-cols-2 gap-4 font-bold text-xs">
-        <div>Patient</div>
-        <div>Reason For Visit:</div>
-      </div>
-      {onDemandQueue.map((visit, index) => (
-        <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} isOnDemand={true}/>
-      ))}
-      {visitQueue.map((visit, index) => (
-        <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} />
-      ))}
+      {(onDemandQueue.length || visitQueue.length) ?
+        <div>
+          <div className="px-1 py-2 grid grid-cols-2 gap-4 font-bold text-xs">
+            <div>Patient</div>
+            <div>Reason For Visit:</div>
+          </div>
+          {onDemandQueue.map((visit, index) => (
+            <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} isOnDemand={true}/>
+          ))}
+          {visitQueue.map((visit, index) => (
+            <PatientVisitCard visit={visit} key={index} index={index} waitTime={calculateWaitTime(visit.ehrAppointment.start_datetime_ltz)} />
+          ))}
+        </div> :
+        <LoadingSpinner/>
+      }
     </Card>
   );
 };
