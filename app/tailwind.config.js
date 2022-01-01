@@ -32,6 +32,9 @@ module.exports = {
           ...theme, ...colors,
         }),
       },
+      animation: {
+        spin: 'spin 2s linear infinite'
+      },
       boxShadow: {
         card: '0px 4px 4px rgba(0, 0, 0, 0.25)',
         patientHeader: '0px 4px 11px rgba(0, 0, 0, 0.25)',

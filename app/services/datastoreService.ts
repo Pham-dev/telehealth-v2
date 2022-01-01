@@ -2,8 +2,8 @@
  * encapsulation of server datastore functions
  * --------------------------------------------------------------------------------------------------------------
  */
-import {EHRPatient, EHRProvider, EHRContent, EHRAppointment, PatientUser, ProviderUser, TelehealthUser, TelehealthVisit} from "../types";
-import {Uris} from "./constants";
+import { EHRPatient, EHRProvider, EHRContent, EHRAppointment, ProviderUser, TelehealthUser, TelehealthVisit, PostVisitSurvey } from "../types";
+import { Uris } from "./constants";
 const assert = require('assert');
 
 function instantiatePatient(data: any) : EHRPatient {
@@ -314,6 +314,52 @@ async function addAppointment(token: string, ehrAppointment: EHRAppointment): Pr
 }
 
 
+
+/* --------------------------------------------------------------------------------------------------------------
+ * add new post visit survey
+ * --------------------------------------------------------------------------------------------------------------
+ */
+async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
+  if (token == null) throw new Error("Unauthorized: Token is either null or undefined!");
+  if (survey == null) throw new Error("Survey is null or undefined!");
+  
+  const surveyResponse = fetch(Uris.backendRoot + '/datastore/surveys', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'ADD', survey }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then(res => res.json());
+
+  if (!surveyResponse) {
+    Promise.reject({ error: "Unable to add post visit survey!"});
+  }
+
+  return Promise.resolve(surveyResponse);
+}
+
+async function getSurveys(token: string): Promise<any> {
+  if (token == null) throw new Error("Unauthorized: Token is either null or undefined!");
+  
+  const surveys= fetch(Uris.backendRoot + '/datastore/surveys', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'GET'}),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then(res => res.json());
+
+  if (!surveys) {
+    Promise.reject({ error: "Unable to add post visit survey!"});
+  }
+
+  return Promise.resolve(surveys);
+}
+
 export default {
   fetchAllTelehealthVisits,
   fetchTelehealthVisitForPatient,
@@ -323,4 +369,6 @@ export default {
   fetchProviderOnCall,
   addPatient,
   addAppointment,
+  addSurvey,
+  getSurveys
 };
