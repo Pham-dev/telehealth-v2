@@ -144,6 +144,7 @@ async function sendScheduledPatientLink(e) {
       body: JSON.stringify({
         to_phone: phone,
         body: `Please join your telehealth appointment via ${url}`,
+        token: accessToken
       })
     });
 
@@ -190,6 +191,7 @@ async function sendOnDemandPatientLink(e) {
       body: JSON.stringify({
         to_phone: phone,
         body: `Please start your on-demand telehealth appointment via ${url}`,
+        token: accessToken
       })
     });
 
@@ -289,6 +291,7 @@ async function sendProviderLink(e) {
       body: JSON.stringify({
         to_phone: phone,
         body: `Please open your telehealth dashboard via ${url}`,
+        token: accessToken
       })
     });
 
@@ -305,6 +308,7 @@ async function sendProviderLink(e) {
       body: JSON.stringify({
         to_phone: patient_phone,
         body: `Please join your telehealth appointment via ${url}`,
+        token: accessToken
       })
     });
 
@@ -327,6 +331,7 @@ async function populatePatients() {
     {
       const parameters = new URLSearchParams({
         action: 'GET',
+        token: accessToken
       });
       const response = await fetch(
         '/datastore/patients?' + parameters,
@@ -367,6 +372,7 @@ async function populateContents() {
 
     const parameters =  new URLSearchParams({
       action: 'GET',
+      token: accessToken
     });
     const response = await fetch(
       '/datastore/contents?' + parameters,
@@ -444,6 +450,7 @@ async function saveContent(content_id) {
     body: JSON.stringify({
       action: 'ADD',
       content: content,
+      token: accessToken
     })
   })
     .then((response) => response.json())
@@ -474,6 +481,7 @@ async function removeContent(content_id) {
     body: JSON.stringify({
       action: 'REMOVE',
       content_id: content_id,
+      token: accessToken
     })
   })
     .then((response) => response.json())
@@ -498,6 +506,7 @@ async function populateProviders() {
   try {
     const parameters = new URLSearchParams({
       action: 'GET',
+      token: accessToken
     });
     const response = await fetch(
       '/datastore/providers?' + parameters,
@@ -535,6 +544,7 @@ async function populateProviderSelector() {
   try {
     const parameters = new URLSearchParams({
       action: 'GET',
+      token: accessToken
     });
     const response = await fetch(
       '/datastore/providers?' + parameters,
@@ -584,6 +594,7 @@ async function populateProviderContents() {
 
     const parameters = new URLSearchParams({
       action: 'GET',
+      token: accessToken
     });
     const response = await fetch(
       '/datastore/contents?' + parameters,
@@ -630,6 +641,7 @@ async function assignContent2Provider(css_id, content_id) {
       action: is_checked ? 'ASSIGN' : 'UNASSIGN',
       content_id: content_id,
       provider_id: provider_id,
+      token: accessToken
     })
   })
     .then((response) => response.json())
@@ -676,6 +688,7 @@ async function fetchNextScheduledAppointment(provider_id) {
     const parameters = new URLSearchParams({
       action: 'GETTUPLE',
       provider_id: provider_id,
+      token: accessToken
     });
     const response = await fetch(
       '/datastore/appointments?' + parameters,
@@ -730,6 +743,7 @@ async function fetchProvider(provider_id) {
     const parameters = new URLSearchParams({
       action: 'GET',
       provider_id: provider_id,
+      token: accessToken
     });
     const providers = await fetch(
       '/datastore/providers?' + parameters,
@@ -771,6 +785,7 @@ async function populateProviderPatients() {
       const parameters = new URLSearchParams({
         action: 'GET',
         provider_id: provider_id,
+        token: accessToken
       });
       const response = await fetch(
         '/datastore/appointments?' + parameters,
@@ -789,6 +804,7 @@ async function populateProviderPatients() {
     for (a of appointments) {
       const parameters = new URLSearchParams({
         appointment_id: a.appointment_id,
+        token: accessToken
       });
       // Will need to add a body here which will contain the token since
       // the below is a public function.
@@ -812,6 +828,7 @@ async function populateProviderPatients() {
     {
       const parameters = new URLSearchParams({
         action: 'GET',
+        token: accessToken
       });
       const response = await fetch(
         '/datastore/patients?' + parameters,
