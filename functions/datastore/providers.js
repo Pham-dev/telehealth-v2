@@ -53,15 +53,17 @@ exports.handler = async function(context, event, callback) {
   const { getParam } = require(Runtime.getFunctions()['helpers'].path);
   const { isValidAppToken } = require(Runtime.getFunctions()["authentication-helper"].path);
 
-  /* Following code checks that a valid token was sent with the API call */
-  if (event.token && !isValidAppToken(event.token, context)) {
-    const response = new Twilio.Response();
-    response.appendHeader('Content-Type', 'application/json');
-    response.setStatusCode(401);
-    response.setBody({message: 'Invalid or expired token'});
-    return callback(null, response);
-  }
   try {
+    /* Following code checks that a valid token was sent with the API call */
+    assert(event.token);
+    if (!isValidAppToken(event.token, context)) {
+      const response = new Twilio.Response();
+      response.appendHeader('Content-Type', 'application/json');
+      response.setStatusCode(401);
+      response.setBody({message: 'Invalid or expired token'});
+      return callback(null, response);
+    }
+  
     const action = event.action ? event.action : 'USAGE'; // default action
 
     switch (action) {

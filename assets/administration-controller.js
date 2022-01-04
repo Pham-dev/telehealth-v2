@@ -790,6 +790,8 @@ async function populateProviderPatients() {
       const parameters = new URLSearchParams({
         appointment_id: a.appointment_id,
       });
+      // Will need to add a body here which will contain the token since
+      // the below is a public function.
       const response = await fetch(
         '/retrieve-video-recording-url?' + parameters,
         {

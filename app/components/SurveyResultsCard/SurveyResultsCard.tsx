@@ -25,7 +25,6 @@ const SurveyResultsCard = ({className}: SurveyResultsCardProps) => {
     const getSurveys = async () => {
       if (user) {
         const surveys: PostVisitSurvey[] = await datastoreService.getSurveys(user.token);
-        console.log(surveys);
         setSurveys(surveys);
         let up, down = 0;
         let uniqueIssues = new Set<string>();

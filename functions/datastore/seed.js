@@ -33,10 +33,10 @@ async function seedResource(context, syncServiceSid, seedAssetPath) {
 // --------------------------------------------------------------------------------
 exports.handler = async function(context, event, callback) {
   const THIS = 'seed';
-
   console.time(THIS);
-  assertLocalhost(context);
+
   try {
+    assertLocalhost(context);
     const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
 
     const assets = Runtime.getAssets(); // get all private assets

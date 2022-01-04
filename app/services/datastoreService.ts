@@ -325,7 +325,7 @@ async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
   
   const surveyResponse = fetch(Uris.backendRoot + '/datastore/surveys', {
     method: 'POST',
-    body: JSON.stringify({ action: 'ADD', survey }),
+    body: JSON.stringify({ action: 'ADD', survey, token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -345,7 +345,7 @@ async function getSurveys(token: string): Promise<any> {
   
   const surveys= fetch(Uris.backendRoot + '/datastore/surveys', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GET'}),
+    body: JSON.stringify({ action: 'GET', token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
