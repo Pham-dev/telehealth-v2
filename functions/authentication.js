@@ -17,7 +17,6 @@ exports.handler = function(context, event, callback) {
     const response = new Twilio.Response();
     response.appendHeader('Content-Type','application/json');
 
-    assertLocalhost(context);
     switch(event.command) {
         case 'login':
             login(context, event, callback);
