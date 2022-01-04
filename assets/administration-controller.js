@@ -785,6 +785,27 @@ async function populateProviderPatients() {
     }
     console.log(THIS, 'appointments:', appointments.length);
 
+    // fetch recording for appointment if any
+    for (a of appointments) {
+      const parameters = new URLSearchParams({
+        appointment_id: a.appointment_id,
+      });
+      const response = await fetch(
+        '/retrieve-video-recording-url?' + parameters,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+        });
+      const url = await response.json();
+      console.log(url);
+      a.href = url.url
+        ? `<a href=${url.url}>Rec</a>`
+        : '';
+    }
+
     let patients = null;
     {
       const parameters = new URLSearchParams({
@@ -810,6 +831,7 @@ async function populateProviderPatients() {
       <td>${row.appointment_id}</td>
       <td>${p.patient_name}</td>
       <td>${row.appointment_start_datetime_utc}</td>
+      <td>${row.href}</td>
     </tr>`);
     });
 
