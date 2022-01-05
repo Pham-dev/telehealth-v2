@@ -66,7 +66,7 @@ async function fetchAllTelehealthVisits(provider: ProviderUser): Promise<Array<T
   }
   const tuple = await fetch(Uris.backendRoot + '/datastore/appointments', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GETTUPLE', provider_id: provider.id }),
+    body: JSON.stringify({ action: 'GETTUPLE', provider_id: provider.id, token: provider.token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ async function fetchAllTelehealthVisits(provider: ProviderUser): Promise<Array<T
 async function fetchTelehealthVisitForPatient(user: TelehealthUser, appointment_id: string): Promise<TelehealthVisit | { error : string }> {
   const tuple = await fetch(Uris.backendRoot + '/datastore/appointments', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GETTUPLE', appointment_id: appointment_id }),
+    body: JSON.stringify({ action: 'GETTUPLE', appointment_id: appointment_id, token: user.token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ async function fetchTelehealthVisitForPatient(user: TelehealthUser, appointment_
 async function fetchAllContent(provider: ProviderUser): Promise<Array<EHRContent>> {
   const tuple = await fetch(Uris.backendRoot + '/datastore/contents', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GET' }),
+    body: JSON.stringify({ action: 'GET', token: provider.token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ async function fetchAllContent(provider: ProviderUser): Promise<Array<EHRContent
 async function fetchContentForPatient(patient: TelehealthUser, provider_id): Promise<EHRContent> {
   const tuple = await fetch(Uris.backendRoot + '/datastore/contents', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GET', provider_id: provider_id }),
+    body: JSON.stringify({ action: 'GET', provider_id: provider_id, token: patient.token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -195,7 +195,8 @@ async function assignContentToProvider(content_id: string, provider: ProviderUse
     body: JSON.stringify({
       action: 'ASSIGN',
       content_id: content_id,
-      provider_id: provider.id
+      provider_id: provider.id,
+      token: provider.token
     }),
     headers: {
       'Accept': 'application/json',
@@ -217,7 +218,7 @@ async function assignContentToProvider(content_id: string, provider: ProviderUse
 async function fetchProviderOnCall(token: string): Promise<EHRProvider> {
   const tuple = await fetch(Uris.backendRoot + '/datastore/providers', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GETONCALL' }),
+    body: JSON.stringify({ action: 'GETONCALL', token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -260,7 +261,7 @@ async function addPatient(token: string, ehrPatient: EHRPatient): Promise<EHRPat
 
   const newPatientData = await fetch(Uris.backendRoot + '/datastore/patients', {
     method: 'POST',
-    body: JSON.stringify({ action: 'ADD', patient: _patientData }),
+    body: JSON.stringify({ action: 'ADD', patient: _patientData, token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -296,7 +297,7 @@ async function addAppointment(token: string, ehrAppointment: EHRAppointment): Pr
 
   const newAppointmentData = await fetch(Uris.backendRoot + '/datastore/appointments', {
     method: 'POST',
-    body: JSON.stringify({ action: 'ADD', appointment: _appointmentData }),
+    body: JSON.stringify({ action: 'ADD', appointment: _appointmentData, token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -325,7 +326,7 @@ async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
   
   const surveyResponse = fetch(Uris.backendRoot + '/datastore/surveys', {
     method: 'POST',
-    body: JSON.stringify({ action: 'ADD', survey }),
+    body: JSON.stringify({ action: 'ADD', survey, token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -345,7 +346,7 @@ async function getSurveys(token: string): Promise<any> {
   
   const surveys= fetch(Uris.backendRoot + '/datastore/surveys', {
     method: 'POST',
-    body: JSON.stringify({ action: 'GET'}),
+    body: JSON.stringify({ action: 'GET', token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

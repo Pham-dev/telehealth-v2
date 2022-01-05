@@ -1,5 +1,7 @@
 exports.handler = async function(context, event, callback) {
     const client = context.getTwilioClient();
+    const { assertLocalhost } = require(Runtime.getFunctions()['helpers'].path);
+    assertLocalhost(context);
 
     const response = new Twilio.Response();
     const to_phone = await client.lookups.v1.phoneNumbers(event.PHONE)

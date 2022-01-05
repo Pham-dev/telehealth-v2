@@ -69,15 +69,17 @@ exports.handler = async function(context, event, callback) {
   console.time(THIS);
   const { isValidAppToken } = require(Runtime.getFunctions()["authentication-helper"].path);
 
-  /* Following code checks that a valid token was sent with the API call */
-  if (event.token && !isValidAppToken(event.token, context)) {
-    const response = new Twilio.Response();
-    response.appendHeader('Content-Type', 'application/json');
-    response.setStatusCode(401);
-    response.setBody({message: 'Invalid or expired token'});
-    return callback(null, response);
-  }
   try {
+    assert(event.token);
+    /* Following code checks that a valid token was sent with the API call */
+    if (!isValidAppToken(event.token, context)) {
+      const response = new Twilio.Response();
+      response.appendHeader('Content-Type', 'application/json');
+      response.setStatusCode(401);
+      response.setBody({message: 'Invalid or expired token'});
+      return callback(null, response);
+    }
+  
     assert(event.appointment_id, 'Missing event.appointment_id!!!');
 
     const url = await retrieveVideoCompositionMediaURL(context, event.appointment_id);
