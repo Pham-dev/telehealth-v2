@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import datastoreService from "../../services/datastoreService";
 import { useVisitContext } from "../../state/VisitContext";
 import { PostVisitSurvey, Reaction } from "../../types";
-import { joinClasses } from "../../utils";
-import { Button } from "../Button";
 import { Card } from "../Card";
 import { Icon } from "../Icon";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
@@ -14,8 +12,7 @@ interface SurveyResultsCardProps {
 }
 
 const SurveyResultsCard = ({className}: SurveyResultsCardProps) => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [surveys, setSurveys] = useState<PostVisitSurvey[]>();
+  const [surveys, setSurveys] = useState<PostVisitSurvey[]>([]);
   const [thumbsUp, setThumbsUp] = useState<number>(0);
   const [thumbsDown, setThumbsDown] = useState<number>(0);
   const [issues, setIssues] = useState<string[]>([]);
@@ -24,11 +21,11 @@ const SurveyResultsCard = ({className}: SurveyResultsCardProps) => {
   useEffect(() => {
     const getSurveys = async () => {
       if (user) {
-        const surveys: PostVisitSurvey[] = await datastoreService.getSurveys(user.token);
-        setSurveys(surveys);
+        const surveyResponse: PostVisitSurvey[] = await datastoreService.getSurveys(user.token);
+        setSurveys(surveyResponse);
         let up, down = 0;
         let uniqueIssues = new Set<string>();
-        for (const survey of surveys) {
+        for (const survey of surveyResponse) {
           survey.selectedIssues.map(issue => {
             uniqueIssues.add(issue);
           });
@@ -39,11 +36,9 @@ const SurveyResultsCard = ({className}: SurveyResultsCardProps) => {
         setIssues(Array.from(uniqueIssues))
         setThumbsUp(up);
         setThumbsDown(down);
-        setIsLoading(false);
       }
     }
     getSurveys();
-    console.log(issues)
   }, [user])
 
   return (
@@ -52,7 +47,7 @@ const SurveyResultsCard = ({className}: SurveyResultsCardProps) => {
         Video Quality Surveys
       </CardHeading>
       <div className="">
-        {isLoading ? 
+        {!surveys.length || surveys === undefined ? 
           <LoadingSpinner/> :
           <div className="mt-2">
             <div className="justify-items-center grid gap-2 grid-cols-2">
