@@ -11,6 +11,8 @@ exports.handler = async function(context, event, callback) {
   
   try {
     const response = new Twilio.Response();
+    response.appendHeader('Content-Type', 'application/json');
+    
     if (context.DOMAIN_NAME.startsWith('localhost:')) {
       response.appendHeader('Access-Control-Allow-Origin', '*');
       response.appendHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
@@ -28,7 +30,7 @@ exports.handler = async function(context, event, callback) {
 
     const action = event.action ? event.action : null;
     const survey = event.survey ? event.survey : null;
-
+    
     switch (action) {
       case 'ADD': {
         const resources = await read_fhir(context, TWILIO_SYNC_SID, SURVEY_RESOURCE);
@@ -46,7 +48,6 @@ exports.handler = async function(context, event, callback) {
       }
       default: {
         response.setBody({message: 'Neither a ADD or GET action'});
-        response.appendHeader('Content-Type', 'application/json');
         response.setStatusCode(401);
         return callback(null, response);
       }
