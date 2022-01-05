@@ -344,7 +344,7 @@ async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
 async function getSurveys(token: string): Promise<any> {
   if (token == null) throw new Error("Unauthorized: Token is either null or undefined!");
   
-  const surveys= fetch(Uris.backendRoot + '/datastore/surveys', {
+  const surveys = fetch(Uris.backendRoot + '/datastore/surveys', {
     method: 'POST',
     body: JSON.stringify({ action: 'GET', token }),
     headers: {
