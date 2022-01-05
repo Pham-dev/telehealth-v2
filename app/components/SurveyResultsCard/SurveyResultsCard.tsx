@@ -23,7 +23,7 @@ const SurveyResultsCard = ({className}: SurveyResultsCardProps) => {
       if (user) {
         const surveyResponse: PostVisitSurvey[] = await datastoreService.getSurveys(user.token);
         setSurveys(surveyResponse);
-        let up, down = 0;
+        let up: number = 0, down: number = 0;
         let uniqueIssues = new Set<string>();
         for (const survey of surveyResponse) {
           survey.selectedIssues.map(issue => {
