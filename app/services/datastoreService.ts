@@ -320,7 +320,7 @@ async function addAppointment(token: string, ehrAppointment: EHRAppointment): Pr
  * add new post visit survey
  * --------------------------------------------------------------------------------------------------------------
  */
-async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
+async function addSurvey(token: string, survey: PostVisitSurvey): Promise<PostVisitSurvey[]> {
   if (token == null) throw new Error("Unauthorized: Token is either null or undefined!");
   if (survey == null) throw new Error("Survey is null or undefined!");
   
@@ -341,7 +341,7 @@ async function addSurvey(token: string, survey: PostVisitSurvey): Promise<any> {
   return Promise.resolve(surveyResponse);
 }
 
-async function getSurveys(token: string): Promise<any> {
+async function getSurveys(token: string): Promise<PostVisitSurvey[]> {
   if (token == null) throw new Error("Unauthorized: Token is either null or undefined!");
   
   const surveys = fetch(Uris.backendRoot + '/datastore/surveys', {
