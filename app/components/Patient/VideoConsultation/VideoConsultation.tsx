@@ -160,8 +160,9 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                   isProvider={false}
                   participant={callState.patientParticipant}
                 />}
-                {callState.visitorParticipant &&
-                  <div className='flex flex-grow w-[405px]'>
+                {callState.patientParticipant && callState.visitorParticipant &&
+                  <div className='flex flex-col flex-wrap overflow-x-auto w-[400px] h-[300px]'>
+
                     <VideoParticipant
                       name={visit.patientName}
                       hasAudio={isAudioEnabled}
@@ -169,7 +170,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                       isSelf={true}
                       isProvider={false}
                       participant={callState.patientParticipant}
-                      fullScreen
+                      carouselScreen
                     />
                     <VideoParticipant
                       name="Visitor"
@@ -179,7 +180,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                       isProvider={false}
                       isSelf={false}
                       participant={callState.visitorParticipant}
-                      fullScreen
+                      carouselScreen
                     />
                   </div>}
                 {callState.providerParticipant && <VideoParticipant
