@@ -9,6 +9,7 @@ import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
 import useOnDemandContext from '../../../../components/Base/OnDemandProvider/useOnDemandContext/useOnDemandContext';
 import datastoreService from '../../../../services/datastoreService';
 import { EHRAppointment, EHRPatient } from '../../../../types';
+import Image from 'next/image';
 
 /* 
 * After landing on this page, a visitId should be created from EHR
@@ -19,6 +20,7 @@ import { EHRAppointment, EHRPatient } from '../../../../types';
 const PaymentReceivedPage = () => {
   const router = useRouter();
   const [passcode, setPasscode] = useState<string>();
+  const [appToken, setAppToken] = useState<string>();
   const [isError, setIsError] = useState<boolean>(false);
   const { syncClient, syncToken, onDemandStream } = useSyncContext();
   const [appt, setAppt] = useState<EHRAppointment>(null);
@@ -28,11 +30,10 @@ const PaymentReceivedPage = () => {
     phoneNumber,
     gender,
     reasonForVisit,
-    preExistingConditions
    } = useOnDemandContext();
   
   const publishOnDemandVisit = useCallback(
-    async () => {
+    async (token: string) => {
       const ehrPatient: EHRPatient = {
         name: lastName,
         family_name: lastName,
@@ -43,8 +44,8 @@ const PaymentReceivedPage = () => {
   
       // combine calls to reduce latency time
       const [provider, patient] = await Promise.all([
-        datastoreService.fetchProviderOnCall(syncToken),
-        datastoreService.addPatient(syncToken, ehrPatient)
+        datastoreService.fetchProviderOnCall(token),
+        datastoreService.addPatient(token, ehrPatient)
       ]);
       const appointment: EHRAppointment = {
         provider_id: provider.id,
@@ -53,7 +54,7 @@ const PaymentReceivedPage = () => {
         references: [],
       }
       setAppt(appointment);
-    }, []);
+    }, [firstName, gender, lastName, phoneNumber, reasonForVisit]);
 
   // The values in this fetch statement will be gathered from EHR integration
   useEffect(() => {
@@ -62,13 +63,14 @@ const PaymentReceivedPage = () => {
       body: JSON.stringify({
         role: "patient",
         action: "PATIENT",
-        id: "a1000000",
-        visitId: "p1000000" // should be generated from EHR
+        id: "p1000000",
+        visitId: "a1000000" // should be generated from EHR
       }),
       headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
     })
     .then(async token => {
       const resolvedToken = await token.json();
+      setAppToken(resolvedToken.token);
       setPasscode(resolvedToken.passcode);
     }).catch(err => {
       setIsError(true);
@@ -77,12 +79,14 @@ const PaymentReceivedPage = () => {
   }, [syncToken]);
 
   useEffect(() => {
-    publishOnDemandVisit();
-  }, []);
+    if (appToken) {
+      publishOnDemandVisit(appToken);
+    }
+  }, [appToken, publishOnDemandVisit]);
 
   // Will need to change this to real data get call.
   useEffect(() => {
-    if (syncClient && onDemandStream && appt && syncToken) {
+    if (syncClient && onDemandStream && appt && syncToken && appToken) {
       onDemandStream.publishMessage({
         appointment: appt,
         patientSyncToken: syncToken,
@@ -90,13 +94,13 @@ const PaymentReceivedPage = () => {
       .then(async message => {
         console.log('Stream publishMessage() successful, message SID:', message);
         //@ts-ignore
-        await datastoreService.addAppointment(syncToken, message.data.appointment);
+        await datastoreService.addAppointment(appToken, message.data.appointment);
       })
       .catch(error => {
         console.error('Stream publishMessage() failed', error);
       })
     }
-  }, [appt, onDemandStream, syncClient, syncToken])
+  }, [appToken, appt, onDemandStream, syncClient, syncToken])
 
 
   // No check needed because the payment is already validated
@@ -108,7 +112,7 @@ const PaymentReceivedPage = () => {
     <Layout>
       <Alert
         title="Payment Received"
-        icon={<img src="/icons/payment-success.svg" height={98} width={135} />}
+        icon={<Image alt="Payment Success" src="/icons/payment-success.svg" height={98} width={135} />}
         contentBeforeIcon
         content={
           <>

@@ -1,5 +1,3 @@
-const { assertLocalhost } = require(Runtime.getFunctions()['helpers'].path);
-
 /*
  * --------------------------------------------------------------------------------
  *  Twilio function used to login with MFA validation and generate JWT for application sessions
