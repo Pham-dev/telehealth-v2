@@ -1,43 +1,34 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Heading } from '../../../components/Heading';
 import { InfoForm, Layout } from '../../../components/Patient';
 import OnDemandLayout from '../../../components/Patient/OnDemandLayout';
-import useOnDemandContext from '../../../components/Base/OnDemandProvider/useOnDemandContext/useOnDemandContext';
-
-interface FormValue {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  email: string;
-  needTranslator: string;
-  gender: string;
-}
+import clientStorage from '../../../services/clientStorage';
+import { PatientInfo, PATIENT_INFO_KEY } from '../../../constants';
 
 const InfoFormPage = () => {
   const router = useRouter();
-  const {
-    setFirstName,
-    setLastName,
-    setPhoneNumber,
-    setEmail,
-    setNeedTranslator,
-    setGender,
-  } = useOnDemandContext();
-
+  const submitInfo = useCallback(
+    (formValue: PatientInfo) => {
+      clientStorage.saveToStorage(PATIENT_INFO_KEY, {
+        firstName: formValue.firstName,
+        lastName: formValue.lastName,
+        phoneNumber: formValue.phoneNumber,
+        email: formValue.email,
+        needTranslator: formValue.needTranslator,
+        gender: formValue.gender
+      } as PatientInfo);
+      
+      router.push(`/patient/on-demand/health`);
+    },
+    [router],
+  );
+  
   return (
     <Layout>
       <Heading>Please Share Your Info</Heading>
       <InfoForm
-        onSubmit={(formValue: FormValue) => {
-          setFirstName(formValue.firstName);
-          setLastName(formValue.lastName);
-          setEmail(formValue.email);
-          setGender(formValue.gender);
-          setNeedTranslator(formValue.needTranslator.toLowerCase() === 'no' ? false : true);
-          setPhoneNumber(formValue.phoneNumber);
-          router.push(`/patient/on-demand/health`);
-        }}
+        onSubmit={submitInfo}
       />
     </Layout>
   );

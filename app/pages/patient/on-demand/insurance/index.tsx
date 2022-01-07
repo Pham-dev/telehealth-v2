@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, ButtonVariant } from '../../../../components/Button';
@@ -9,10 +9,25 @@ import {
   UploadInsurance,
 } from '../../../../components/Patient';
 import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
+import clientStorage from '../../../../services/clientStorage';
+import { InsuranceInfo } from '../../../../constants';
 
 const InsurancePage = () => {
   const router = useRouter();
   const [enterManually, setEnterManually] = useState(false);
+  const submitInsuranceInfo = useCallback(
+    (formValue: InsuranceInfo) => {
+      clientStorage.saveToStorage('InsuranceInfo', {
+        haveInsurance: formValue.haveInsurance,
+        memberId: formValue.memberId ? formValue.memberId : '',
+        healthPlan: formValue.healthPlan,
+        isPrimaryMember: formValue.isPrimaryMember
+      } as InsuranceInfo);
+      
+      router.push(`/patient/on-demand/payment`);
+    },
+    [router],
+  )
 
   return (
     <Layout>
@@ -24,9 +39,7 @@ const InsurancePage = () => {
         </p>
         {enterManually ? (
           <InsuranceForm
-            onSubmit={(formValue) => {
-              router.push(`/patient/on-demand/payment`);
-            }}
+            onSubmit={submitInsuranceInfo}
           />
         ) : (
           <>

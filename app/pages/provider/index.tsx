@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import practitionerAuth from '../../services/authService';
-import datastoreService from '../../services/datastoreService';
 import clientStorage from '../../services/clientStorage';
 import { STORAGE_USER_KEY } from '../../constants';
 

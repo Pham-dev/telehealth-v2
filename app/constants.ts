@@ -19,6 +19,12 @@ export const STORAGE_USER_KEY = 'TelehealthUser';
 export const STORAGE_VISIT_KEY = 'TelehealthVisit';
 export const CURRENT_VISIT_ID = 'CurrentVisitId';
 
+// On Demand Local Storage Keys
+export const PATIENT_INFO_KEY = 'PatientInfo';
+export const HEALTH_INFO_KEY = 'HealthInfo';
+export const INSURANCE_INFO_KEY = 'InsuranceInfo';
+export const LOCAL_SYNC_TOKEN_KEY = 'LocalSyncToken';
+
 export const ALLOWED_FILE_TYPES =
 'audio/*, image/*, text/*, video/*, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document .xslx, .ppt, .pdf, .key, .svg, .csv';
 
@@ -32,6 +38,35 @@ export const initialSettings: Settings = {
   roomType: 'group'
 };
 
+// On Demand Intefaces
+export interface PatientInfo {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  needTranslator: string;
+  gender: string;
+}
+interface HealthFile {
+  name: string;
+  url?: string;
+}
+export interface HealthInfo {
+  conditions: string;
+  files?: HealthFile[];
+  medications: string;
+  reason: string;
+}
+
+export interface InsuranceInfo {
+  haveInsurance: string;
+  memberId: string;
+  healthPlan: string;
+  isPrimaryMember: string;
+
+}
+
+// Room Interfaces
 export interface ParticipantRoomState {
   patientName: string;
   providerName: string;
