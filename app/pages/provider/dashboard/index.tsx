@@ -34,13 +34,18 @@ const DashboardPage: TwilioPage = () => {
   const fetchVisits = useCallback(async () => {
     datastoreService.fetchAllTelehealthVisits(user)
       .then(async allVisits => {
-        const onDemandVisits = allVisits.filter(visit => visit.ehrAppointment.type === 'WALKIN');
+        const onDemandVisits = allVisits.filter(
+          (visit, index, self) => 
+            visit.ehrAppointment.type === 'WALKIN' && 
+            index === self.findIndex(t => t.ehrPatient.phone === visit.ehrPatient.phone)
+          );
         const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
+        console.log(onDemandVisits);
         setOnDemandQueue(onDemandVisits);
         setVisitQueue(regularVisits);
         setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
       });
-    }, []
+    }, [user]
   ); 
 
   // Gets Sync token to utilize Sync API prior to video room

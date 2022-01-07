@@ -92,10 +92,7 @@ const PaymentReceivedPage = () => {
 
   // Will need to change this to real data get call.
   useEffect(() => {
-    console.log("HEELOL @")
-    console.log(syncClient && onDemandStream && appt && syncToken && appToken)
     if (syncClient && onDemandStream && appt && syncToken && appToken) {
-      console.log("hello")
       onDemandStream.publishMessage({
         appointment: appt,
         patientSyncToken: syncToken,
@@ -108,7 +105,6 @@ const PaymentReceivedPage = () => {
       .catch(error => {
         console.error('Stream publishMessage() failed', error);
       });
-      console.log(passcode, isReady)
     }
   }, [appToken, appt, isReady, onDemandStream, passcode, syncClient, syncToken])
 

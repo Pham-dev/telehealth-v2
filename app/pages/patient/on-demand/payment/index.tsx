@@ -15,8 +15,8 @@ const PaymentPage = () => {
           method: 'POST',
           body: JSON.stringify({ action: "SYNC" }),
           headers: { 
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
           }
         }).then(async r => {
           const syncToken = await r.json();
