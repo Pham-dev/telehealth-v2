@@ -1,4 +1,5 @@
 import React from 'react';
+import { joinClasses } from '../../utils';
 import { Heading } from '../Heading';
 
 export interface AlertProps {
@@ -12,6 +13,7 @@ export interface AlertProps {
 }
 
 export const Alert = ({
+  className,
   content,
   contentBeforeIcon,
   footer,
@@ -21,7 +23,7 @@ export const Alert = ({
 }: AlertProps) => {
   const Content = () => <div className="my-3">{content}</div>;
   return (
-    <div className="flex flex-col items-center justify-center text-center">
+    <div className={joinClasses('flex flex-col justify-center items-center text-center', className)}>
       {!titleAfterIcon && <Heading>{title}</Heading>}
       {contentBeforeIcon && <Content />}
       {icon && (

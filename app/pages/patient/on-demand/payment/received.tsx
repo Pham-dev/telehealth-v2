@@ -6,10 +6,12 @@ import { useRouter } from 'next/router';
 import { Uris } from '../../../../services/constants';
 import useSyncContext from '../../../../components/Base/SyncProvider/useSyncContext/useSyncContext';
 import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
-import useOnDemandContext from '../../../../components/Base/OnDemandProvider/useOnDemandContext/useOnDemandContext';
 import datastoreService from '../../../../services/datastoreService';
 import { EHRAppointment, EHRPatient } from '../../../../types';
 import Image from 'next/image';
+import clientStorage from '../../../../services/clientStorage';
+import { HealthInfo, HEALTH_INFO_KEY, PatientInfo, PATIENT_INFO_KEY } from '../../../../constants';
+import LoadingSpinner from '../../../../components/LoadingSpinner/LoadingSpinner';
 
 /* 
 * After landing on this page, a visitId should be created from EHR
@@ -19,42 +21,46 @@ import Image from 'next/image';
 **/
 const PaymentReceivedPage = () => {
   const router = useRouter();
-  const [passcode, setPasscode] = useState<string>();
-  const [appToken, setAppToken] = useState<string>();
+  const [passcode, setPasscode] = useState<string>('');
+  const [isReady, setIsReady] = useState<boolean>(false);
+  const [appToken, setAppToken] = useState<string>('');
   const [isError, setIsError] = useState<boolean>(false);
-  const { syncClient, syncToken, onDemandStream } = useSyncContext();
   const [appt, setAppt] = useState<EHRAppointment>(null);
-  const { 
-    firstName,
-    lastName,
-    phoneNumber,
-    gender,
-    reasonForVisit,
-   } = useOnDemandContext();
+  const { syncClient, syncToken, onDemandStream } = useSyncContext();
   
   const publishOnDemandVisit = useCallback(
     async (token: string) => {
-      const ehrPatient: EHRPatient = {
-        name: lastName,
-        family_name: lastName,
-        given_name: firstName,
-        phone: phoneNumber,
-        gender: gender
+      try {      
+        const [patientInfo, healthInfo] = await Promise.all([
+          clientStorage.getFromStorage(PATIENT_INFO_KEY),
+          clientStorage.getFromStorage(HEALTH_INFO_KEY)
+        ]) as [PatientInfo, HealthInfo];
+
+        const ehrPatient: EHRPatient = {
+          name: patientInfo.lastName,
+          family_name: patientInfo.lastName,
+          given_name: patientInfo.firstName,
+          phone: patientInfo.phoneNumber,
+          gender: patientInfo.gender
+        }
+
+        // combine calls to reduce latency time
+        const [provider, patient] = await Promise.all([
+          datastoreService.fetchProviderOnCall(token),
+          datastoreService.addPatient(token, ehrPatient)
+        ]);
+        const appointment: EHRAppointment = {
+          provider_id: provider.id,
+          patient_id: patient.id,
+          reason: healthInfo.reason,
+          references: [],
+        }
+        setAppt(appointment);
+      } catch(err) {
+        console.log(err);
+        router.push('/patient/on-demand/info');
       }
-  
-      // combine calls to reduce latency time
-      const [provider, patient] = await Promise.all([
-        datastoreService.fetchProviderOnCall(token),
-        datastoreService.addPatient(token, ehrPatient)
-      ]);
-      const appointment: EHRAppointment = {
-        provider_id: provider.id,
-        patient_id: patient.id,
-        reason: reasonForVisit,
-        references: [],
-      }
-      setAppt(appointment);
-    }, [firstName, gender, lastName, phoneNumber, reasonForVisit]);
+    }, [router]);
 
   // The values in this fetch statement will be gathered from EHR integration
   useEffect(() => {
@@ -86,21 +92,25 @@ const PaymentReceivedPage = () => {
 
   // Will need to change this to real data get call.
   useEffect(() => {
+    console.log("HEELOL @")
+    console.log(syncClient && onDemandStream && appt && syncToken && appToken)
     if (syncClient && onDemandStream && appt && syncToken && appToken) {
+      console.log("hello")
       onDemandStream.publishMessage({
         appointment: appt,
         patientSyncToken: syncToken,
       })
       .then(async message => {
-        console.log('Stream publishMessage() successful, message SID:', message);
         //@ts-ignore
         await datastoreService.addAppointment(appToken, message.data.appointment);
+        setIsReady(true);
       })
       .catch(error => {
         console.error('Stream publishMessage() failed', error);
-      })
+      });
+      console.log(passcode, isReady)
     }
-  }, [appToken, appt, onDemandStream, syncClient, syncToken])
+  }, [appToken, appt, isReady, onDemandStream, passcode, syncClient, syncToken])
 
 
   // No check needed because the payment is already validated
@@ -118,16 +128,17 @@ const PaymentReceivedPage = () => {
           <>
             <p className="mb-6">
               We’ve received your payment information, and will be using it to
-              process this visit.
+              process this visit. {!isReady && 'Please wait while we process your appointment.'}
             </p>
           </>
         }
       />
       <div className="my-5 mx-auto max-w-[250px] w-full">
-        {passcode && 
-          <Button type="submit" disabled={isError} className="w-full" onClick={enterWaitingRoom}>
-            Connect to Waiting Room
-          </Button>
+        {passcode && isReady ? 
+            <Button type="submit" disabled={isError} className="w-full" onClick={enterWaitingRoom}>
+              Connect to Waiting Room
+            </Button> :
+            <LoadingSpinner/>
         }
       </div>
     </Layout>

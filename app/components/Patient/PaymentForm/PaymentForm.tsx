@@ -1,9 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { Uris } from '../../../services/constants';
-import datastoreService from '../../../services/datastoreService';
 import { US_STATES, ZIP_REGEX } from '../../../utils';
-import useSyncContext from '../../Base/SyncProvider/useSyncContext/useSyncContext';
 import { Button } from '../../Button';
 import { Form } from '../../Form';
 import { Input } from '../../Input';
@@ -15,7 +11,8 @@ export const PaymentForm = ({}: PaymentFormProps) => {
   const router = useRouter();
 
   const onSubmit = async (data) => {
-    console.log(data);
+    // TODO: Integrate Stripe or payment processing
+    // console.log(data);
     router.push(`/patient/on-demand/payment/received`);
   }
 
@@ -38,28 +35,22 @@ export const PaymentForm = ({}: PaymentFormProps) => {
           required: true,
         }}
       />
-      <div className="flex">
-        <div className="pr-1">
-          <Input
-            className="my-2 inline-block"
-            placeholder="Exp. Date"
-            name="expDate"
-            registerOptions={{
-              required: true,
-            }}
-          />
-        </div>
-        <div className="pl-1">
-          <Input
-            className="my-2 inline-block"
-            placeholder="CCV/CVC"
-            name="ccv"
-            registerOptions={{
-              required: true,
-            }}
-          />
-        </div>
-      </div>
+      <Input
+        className="my-2 inline-block w-[49%] mr-[2%]"
+        placeholder="Exp. Date"
+        name="expDate"
+        registerOptions={{
+          required: true,
+        }}
+      />
+      <Input
+        className="my-2 inline-block w-[49%]"
+        placeholder="CCV/CVC"
+        name="ccv"
+        registerOptions={{
+          required: true,
+        }}
+      />
       <div className="mt-4 text-xs font-bold">Billing Information:</div>
       <Input
         className="my-2 w-full"
