@@ -20,7 +20,7 @@ export interface VideoParticipantProps {
   isSelf?: boolean;
   name: string;
   participant: LocalParticipant | RemoteParticipant,
-  fullScreen?:boolean;
+  carouselScreen?:boolean;
 }
 
 export const VideoParticipant = ({
@@ -31,7 +31,7 @@ export const VideoParticipant = ({
   isOverlap,
   isSelf,
   participant,
-  fullScreen
+  carouselScreen
 }: VideoParticipantProps) => {
   const [showMutedBanner, setShowMutedBanner] = useState(null);
   const [isPinned, setIsPinned] = useState(false);
@@ -74,9 +74,9 @@ export const VideoParticipant = ({
      : isProvider
      ? 'h-[234px]'
      : 'h-[364px]';
-  if (fullScreen) {
-    widthClass = 'w-full';
-    heightClass = 'h-full';
+  if (carouselScreen) {
+    widthClass = 'w-[200px]';
+    heightClass = 'h-[300px]';
   }
 
   useEffect(() => {
