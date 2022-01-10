@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import {LocalAudioTrack, LocalDataTrack, LocalVideoTrack } from 'twilio-video';
 import VideoTrack from '../Base/ParticipantTracks/Publication/VideoTrack/VideoTrack';

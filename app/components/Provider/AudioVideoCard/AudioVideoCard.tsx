@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { AudioVideoSettings } from '../../AudioVideoSettings';
 import { LocalVideoTrack } from 'twilio-video';
 import useVideoContext from '../../Base/VideoProvider/useVideoContext/useVideoContext';
@@ -13,7 +14,7 @@ export const AudioVideoCard = ({}: AudioVideoCardProps) => {
 
   useEffect(() => {
     setVideoTrack(localTracks.find(track => track.name.includes('camera')) as LocalVideoTrack); 
-  }, localTracks);
+  }, [localTracks]);
 
   return (
     <>

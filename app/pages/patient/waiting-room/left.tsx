@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { Alert } from '../../../components/Alert';
 import { Button } from '../../../components/Button';
@@ -8,7 +9,7 @@ const LeftWaitingRoom = () => {
     <Layout>
       <Alert
         title={`You’ve left the waiting room`}
-        icon={<img src="/icons/rejoin.svg" height={128} width={128} />}
+        icon={<img alt="Rejoin Button" src="/icons/rejoin.svg" height={128} width={128} />}
         content={
           <p className="mt-8 mb-5">
             If you left the waiting room by accident, please rejoin below:

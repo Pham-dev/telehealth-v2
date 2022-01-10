@@ -5,7 +5,7 @@ import { CardLayout } from '../../../components/Provider';
 const DisconnectedPage = () => {
   return (
     <CardLayout>
-      <DisconnectedAlert />
+      <DisconnectedAlert role={"provider"}/>
     </CardLayout>
   );
 };

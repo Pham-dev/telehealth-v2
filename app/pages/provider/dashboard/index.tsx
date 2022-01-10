@@ -40,7 +40,6 @@ const DashboardPage: TwilioPage = () => {
             index === self.findIndex(t => t.ehrPatient.phone === visit.ehrPatient.phone)
           );
         const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
-        console.log(onDemandVisits);
         setOnDemandQueue(onDemandVisits);
         setVisitQueue(regularVisits);
         setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);

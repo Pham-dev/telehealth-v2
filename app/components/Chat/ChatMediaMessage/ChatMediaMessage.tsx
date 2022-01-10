@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Media } from "@twilio/conversations";
 import { useState, useEffect } from 'react';
 
@@ -46,7 +47,7 @@ export default function MediaMessage({ media, isSelf, name }: MediaMessageProps)
       <div 
         className={'mb-5 flex items-center w-40 h-40 border rounded-2xl max-w-sm border-gray-300 cursor-pointer'} 
         onClick={handleClick}>
-        <img className='w-auto h-auto justify-center' src={imageUrl} />
+        <img alt="User uploaded media image" className='w-auto h-auto justify-center' src={imageUrl} />
       </div>
     </div>
     </>
