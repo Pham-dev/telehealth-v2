@@ -5,7 +5,7 @@ import { Layout } from '../../../components/Patient';
 const DisconnectedPage = () => {
   return (
     <Layout>
-      <DisconnectedAlert />
+      <DisconnectedAlert role={"provider"}/>
     </Layout>
   );
 };

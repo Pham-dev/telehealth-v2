@@ -1,14 +1,14 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { Alert } from '../../../../components/Alert';
 import { Layout } from '../../../../components/Patient';
-import Image from 'next/image';
 
 const InsuranceReceivedPage = () => {
   return (
     <Layout>
       <Alert
         title="Insurance Received"
-        icon={<Image alt="Insurance Received" src="/icons/person-check.svg" height={98} width={135} />}
+        icon={<img alt="Insurance Received" src="/icons/person-check.svg" height={98} width={135} />}
         contentBeforeIcon
         content={
           <>

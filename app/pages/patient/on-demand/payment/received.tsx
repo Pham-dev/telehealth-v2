@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert } from '../../../../components/Alert';
 import { Button } from '../../../../components/Button';
@@ -118,7 +119,7 @@ const PaymentReceivedPage = () => {
     <Layout>
       <Alert
         title="Payment Received"
-        icon={<Image alt="Payment Success" src="/icons/payment-success.svg" height={98} width={135} />}
+        icon={<img alt="Payment Success" src="/icons/payment-success.svg" height={98} width={135} />}
         contentBeforeIcon
         content={
           <>

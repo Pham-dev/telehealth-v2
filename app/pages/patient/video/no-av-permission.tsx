@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import router from 'next/router';
 import React from 'react';
 import { Alert } from '../../../components/Alert';
@@ -20,7 +21,7 @@ const NoAvPermissionPage = () => {
       <Alert
         title={`To use Owl Health, we need\nyour permissions`}
         icon={
-          <img src="/icons/no-av-permissions.svg" height={114} width={262} />
+          <img alt="No Audio/Video Permissions" src="/icons/no-av-permissions.svg" height={114} width={262} />
         }
         content={
           <>
