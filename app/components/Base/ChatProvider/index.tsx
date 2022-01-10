@@ -30,7 +30,7 @@ export const ChatProvider: React.FC = ({children}) => {
       window.chatClient = chatClient;
       setChatClient(chatClient);
     },
-    [onError],
+    [],
   );
 
   // useEffect to handle addition of messages

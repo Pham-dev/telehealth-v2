@@ -75,3 +75,13 @@ After installation make sure to start Docker desktop.
 5. Launch the admnistration page by clicking 'Open Application' button.
 
 6. 'Stop' the docker container `hls-installer` in the docker dashboard.
+
+## Development
+___
+
+To get started developing, you'll want to spin up to servers.  One for the frontend and the other for the backend.  They'll be running on 2 different ports so open 2 terminal windows to do so:
+
+1. A local Next JS server (frontend) by entering ```npm run dev``` in the ```app``` directory
+2. and a Twilio Serverless backend server via ```twilio serverless:start -p 3001``` in the top level
+3. Hit your localhost to visit the app, usually ```http://localhost:3000/```.
+
