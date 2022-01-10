@@ -45,7 +45,7 @@ export const Chat = ({ inputPlaceholder, showHeader, userName, userRole }: ChatP
             )}
           </div>
         )}
-        <div className="bg-white flex-grow w-full p-3 overflow-auto pb-16">
+        <div className="bg-white flex-grow w-full p-3 overflow-auto pb-16 mb-2">
           {messages.map((message, i) => {
             if (message.type === 'text') {
               return <ChatMessage 

@@ -144,7 +144,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                 close={() => setIsChatWindowOpen(false)} 
                 userName={user.name} 
                 userRole={user.role} 
-                inputPlaceholder={`Message to ${visit.providerName}`} 
+                inputPlaceholder={`Message to ${visit.ehrProvider.name}`} 
               />
             </div>
           </>
