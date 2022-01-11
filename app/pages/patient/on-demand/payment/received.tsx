@@ -9,7 +9,6 @@ import useSyncContext from '../../../../components/Base/SyncProvider/useSyncCont
 import OnDemandLayout from '../../../../components/Patient/OnDemandLayout';
 import datastoreService from '../../../../services/datastoreService';
 import { EHRAppointment, EHRPatient } from '../../../../types';
-import Image from 'next/image';
 import clientStorage from '../../../../services/clientStorage';
 import { HealthInfo, HEALTH_INFO_KEY, PatientInfo, PATIENT_INFO_KEY } from '../../../../constants';
 import LoadingSpinner from '../../../../components/LoadingSpinner/LoadingSpinner';

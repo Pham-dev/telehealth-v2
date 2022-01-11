@@ -28,6 +28,10 @@ const WaitingRoomPage: TwilioPage = () => {
   const [ waitingRoomContent, setWaitingRoomContent ] = useState<EHRContent>();
   const router = useRouter();
 
+  function leaveWaitingRoom() {
+    router.push('/patient/waiting-room/left');
+  }
+
   useEffect(() => {
     if (!mediaError) {
       getAudioAndVideoTracks().catch(error => {
@@ -107,8 +111,7 @@ const WaitingRoomPage: TwilioPage = () => {
             Stay in Waiting Room
           </Button>
           <Button
-            as="a"
-            href="/patient/video"
+            onClick={leaveWaitingRoom}
             className="mt-2 px-8"
             variant={ButtonVariant.secondary}
             outline
