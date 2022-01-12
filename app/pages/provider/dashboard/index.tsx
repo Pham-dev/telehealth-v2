@@ -80,7 +80,7 @@ const DashboardPage: TwilioPage = () => {
           c.provider_ids.some(e => e === user.id);
         }));
       });
-  }, []);
+  }, [fetchVisits, user]);
 
   useEffect(() => {
     const publish = async (args: SyncStreamMessage) => {
@@ -100,7 +100,7 @@ const DashboardPage: TwilioPage = () => {
         onDemandStream.off('messagePublished', publish);
       }
     }
-  }, [onDemandStream, syncClient, user]);
+  }, [fetchVisits, onDemandStream, syncClient, user]);
 
   return (
     <Layout>
