@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@sendgrid/mail": "^7.6.0",
     "@twilio-labs/serverless-api": "^5.4.0",
     "@twilio/runtime-handler": "1.2.1",
     "configure-env": "^2.0.0-1",

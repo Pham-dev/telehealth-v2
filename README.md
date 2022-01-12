@@ -2,7 +2,6 @@
 
 
 ## <a name="install"></a>Installation Information
-___
 
 This section details the requirements for a successful deployment and installation of the prototype application.
 
@@ -77,7 +76,6 @@ After installation make sure to start Docker desktop.
 6. 'Stop' the docker container `hls-installer` in the docker dashboard.
 
 ## Development
-___
 
 To get started developing, you'll want to spin up to servers.  One for the frontend and the other for the backend.  They'll be running on 2 different ports so open 2 terminal windows to do so:
 

@@ -4,8 +4,6 @@ import patientAuth from '../../services/authService';
 import datastoreService from '../../services/datastoreService';
 import clientStorage from '../../services/clientStorage';
 import { STORAGE_USER_KEY, STORAGE_VISIT_KEY } from '../../constants';
-import {data} from "cheerio/lib/api/attributes";
-
 
 const PatientLanding = () => {
   const router = useRouter();

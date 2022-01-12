@@ -14,7 +14,6 @@ import { VideoParticipant } from './VideoParticipant';
 import useChatContext from '../../Base/ChatProvider/useChatContext/useChatContext';
 import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/useLocalAudioToggle';
 import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/useLocalVideoToggle';
-import useParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
 import useLocalParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
 import { EndCallModal } from '../../EndCallModal';
 import { Participant } from 'twilio-video';
