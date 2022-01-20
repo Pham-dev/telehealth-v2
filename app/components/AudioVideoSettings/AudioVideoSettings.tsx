@@ -14,7 +14,7 @@ export interface AudioVideoSettingsProps {
   isDark?: boolean;
   isCallInProgress?: boolean;
   isRecording?: boolean;
-  visitNext: TelehealthVisit;
+  visitNext?: TelehealthVisit;
   toggleRecording?: () => void;
 }
 
