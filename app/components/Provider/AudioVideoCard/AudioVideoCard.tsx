@@ -5,10 +5,13 @@ import useVideoContext from '../../Base/VideoProvider/useVideoContext/useVideoCo
 import { Card } from '../../Card';
 import VideoTrack from '../../Base/ParticipantTracks/Publication/VideoTrack/VideoTrack';
 import { useEffect, useState } from 'react';
+import { TelehealthVisit } from '../../../types';
 
-export interface AudioVideoCardProps {}
+export interface AudioVideoCardProps {
+  visitNext: TelehealthVisit;
+}
 
-export const AudioVideoCard = ({}: AudioVideoCardProps) => {
+export const AudioVideoCard = ({ visitNext }: AudioVideoCardProps) => {
   const { localTracks } = useVideoContext();
   const [ videoTrack, setVideoTrack ] = useState<LocalVideoTrack>();
 
@@ -25,7 +28,7 @@ export const AudioVideoCard = ({}: AudioVideoCardProps) => {
           <img src="/provider.jpg" alt="Provider" className="border border-light" /> 
       }
       <Card>
-        <AudioVideoSettings />
+        <AudioVideoSettings visitNext={visitNext}/>
       </Card>
     </>
   );

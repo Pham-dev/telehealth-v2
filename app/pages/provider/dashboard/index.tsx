@@ -104,8 +104,8 @@ const DashboardPage: TwilioPage = () => {
 
   return (
     <Layout>
-      <div className="grid gap-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1" >
-        <div>
+      <div className="" >
+        {/* <div>
           <NextPatientCard className="my-2" visitNext={visitNext} />
           <InviteCard />
         </div>
@@ -113,9 +113,9 @@ const DashboardPage: TwilioPage = () => {
           <PatientQueueCard className="my-2" onDemandQueue={onDemandQueue} visitQueue={visitQueue} isNewVisit={isNewVisit} setIsNewVisit={setIsNewVisit}/>
           <ContentManagementCard className="my-2" contentAssigned={contentAssigned} contentAvailable={contentAvailable}/>
           <SurveyResultsCard className="my-2"/>
-        </div>
-        <div className="order-first lg:order-last">
-          <AudioVideoCard />
+        </div> */}
+        <div className="">
+          <AudioVideoCard visitNext={visitNext}  />
         </div>
       </div>
     </Layout>

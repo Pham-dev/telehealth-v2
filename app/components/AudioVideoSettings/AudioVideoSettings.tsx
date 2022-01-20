@@ -5,12 +5,16 @@ import { VirtualBackgroundOptions } from '../VirtualBackgroundOptions';
 import { useEffect, useState } from 'react';
 import MicTest from './MicTest';
 import { Icon } from '../Icon';
-
+import clientStorage from '../../services/clientStorage';
+import { CURRENT_VISIT_ID } from '../../constants';
+import { useRouter } from 'next/router';
+import { TelehealthVisit } from '../../types';
 export interface AudioVideoSettingsProps {
   className?: string;
   isDark?: boolean;
   isCallInProgress?: boolean;
   isRecording?: boolean;
+  visitNext: TelehealthVisit;
   toggleRecording?: () => void;
 }
 
@@ -32,7 +36,9 @@ export const AudioVideoSettings = ({
   isCallInProgress,
   isRecording,
   toggleRecording,
+  visitNext
 }: AudioVideoSettingsProps) => {
+  const router = useRouter();
   const [videoDevices, setVideoDevices] = useState<ReadonlyArray<Device>>([]);
   const [audioInputDevices, setAudioInputDevices] = useState<ReadonlyArray<Device>>([]);
   const [audioOutputDevices, setAudioOutputDevices] = useState<ReadonlyArray<Device>>([]);
@@ -58,7 +64,12 @@ export const AudioVideoSettings = ({
       setAudioInputDevices(audioInputs);
       setAudioOutputDevices(audioOutputs);
     })
-  }, [isMicOn])
+  }, [isMicOn]);
+
+  function startVisit() {
+    clientStorage.saveToStorage(CURRENT_VISIT_ID, visitNext.ehrAppointment.id);
+    router.push("/provider/video/");
+  };
 
   const Label = ({ children }) => (
     <label
@@ -137,8 +148,10 @@ export const AudioVideoSettings = ({
             <VirtualBackgroundOptions isDark={isDark} />
         </div>
 
-      <div className="my-5 font-bold text-center text-xs">
-        Saved to your Twilio account
+      <div className="my-5 font-bold text-center">
+        <Button as="button" onClick={startVisit}>
+          Start Visit
+        </Button>
       </div>
     </div>
   );
