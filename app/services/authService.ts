@@ -29,7 +29,6 @@ function authenticateVisitorOrPatient(passcode: string): Promise<PatientUser> {
 }
 
 function authenticatePractitioner(passcode: string): Promise<ProviderUser> {
-    console.log(passcode);
     return fetch(Uris.get(Uris.visits.token), {
         method: 'POST',
         body: JSON.stringify({ action: "TOKEN", passcode }),

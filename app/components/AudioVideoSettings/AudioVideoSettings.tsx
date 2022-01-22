@@ -9,6 +9,7 @@ import clientStorage from '../../services/clientStorage';
 import { CURRENT_VISIT_ID } from '../../constants';
 import { useRouter } from 'next/router';
 import { TelehealthVisit } from '../../types';
+import { Header } from '../Provider/Header';
 export interface AudioVideoSettingsProps {
   className?: string;
   isDark?: boolean;
@@ -43,6 +44,16 @@ export const AudioVideoSettings = ({
   const [audioInputDevices, setAudioInputDevices] = useState<ReadonlyArray<Device>>([]);
   const [audioOutputDevices, setAudioOutputDevices] = useState<ReadonlyArray<Device>>([]);
   const [isMicOn, setIsMicOn] = useState<boolean>(false);
+  const [nurseName, setNurseName] = useState<string>('Nurse Educator');
+
+  useEffect(() => {
+    const getNurseName = async () => {
+      let name: string = await clientStorage.getFromStorage('flexUser');
+      console.log(name);
+      if (name) setNurseName(name);
+    }
+    getNurseName();
+  }, []);
   
   function handleChange(e) {
     // Todo: Handle Device Change.
@@ -85,6 +96,7 @@ export const AudioVideoSettings = ({
   return (
     <div className={joinClasses(className)}>
       <div className="my-3">
+        <Header name={nurseName} />
         <Label>Camera</Label>
         <Select
           isDark={isDark}
