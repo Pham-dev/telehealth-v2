@@ -134,7 +134,11 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                   className="absolute left-4 bottom-3"
                   icon="chat_bubble"
                   variant={ButtonVariant.tertiary}
-                  onClick={() => setIsChatWindowOpen(!isChatWindowOpen)}
+                  onClick={() => {
+                    // todo https://twilio-healthcare.atlassian.net/browse/THV2-15 temporary fix. Template needs to be rewritten
+                    setIsChatWindowOpen(!isChatWindowOpen)
+                    toggleAudioEnabled()
+                  }}
                 />
               </div>
             </div>
@@ -199,17 +203,21 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
               )}
             </div>
 
-            <VideoControls
+            {!isChatWindowOpen &&<VideoControls
               containerClass="mb-5 bg-[#FFFFFF4A] rounded-lg"
               isMuted={!isAudioEnabled}
               isVideoStopped={!isVideoEnabled}
               addParticipant={toggleInviteModal}
               flipCamera={() => setConnectionIssueModalVisible(true)}
-              toggleChat={() => setIsChatWindowOpen(!isChatWindowOpen)}
+              toggleChat={() => {
+                setIsChatWindowOpen(!isChatWindowOpen)
+                // todo https://twilio-healthcare.atlassian.net/browse/THV2-15 temporary fix. Template needs to be rewritten
+                toggleAudioEnabled()
+              }}
               toggleVideo={toggleVideoEnabled}
               toggleAudio={toggleAudioEnabled}
               toggleEndCallModal={toggleEndCallModal}
-            />
+            />}
           </>
         )):(<></>)}
       </div>
