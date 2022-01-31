@@ -44,33 +44,33 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     providerParticipant: null,
     visitorParticipant: null
   });
-  
-  useEffect(() => {
-    const disconnectFromRoom = (participant: Participant) => {
-      if (participant.identity === callState.providerParticipant.identity) {
-        room.disconnect();
-        router.push('/patient/visit-survey/');
-      }
-    }
-    if (room && callState.providerParticipant) {
-      room.on('participantDisconnected', disconnectFromRoom);
-      return () => {
-        room.off('participantDisconnected', disconnectFromRoom);
-      }
-    }
-  }, [room]);
-  
 
   useEffect(() => {
     if (room) {
+      const providerParticipant = participants[0];
+
       setCallState(prev => {
         return {
           ...prev,
           patientParticipant: room!.localParticipant,
-          providerParticipant: participants.find(p => p.identity != room!.localParticipant.identity),
+          providerParticipant: providerParticipant,
           visitorParticipant: participants[1]
         }
       })
+
+      const disconnectFromRoom = () => {
+        if (!callState.providerParticipant) {
+          room.disconnect();
+          router.push('/patient/visit-survey/');
+        }
+      }
+
+      if (room && providerParticipant) {
+        room.on('participantDisconnected', disconnectFromRoom);
+        return () => {
+          room.off('participantDisconnected', disconnectFromRoom);
+        }
+      }
     }
   }, [participants, room]);
 
@@ -219,7 +219,9 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
               toggleEndCallModal={toggleEndCallModal}
             />}
           </>
-        )):(<></>)}
+        )):(<>
+          <h1 className="text-white">Something went wrong</h1>
+          </>)}
       </div>
       <ConnectionIssueModal
         close={() => setConnectionIssueModalVisible(false)}
