@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import useChatContext from '../Base/ChatProvider/useChatContext/useChatContext';
 import { Icon } from '../Icon';
 import { ChatMessage } from './ChatMessage/ChatMessage';
@@ -7,16 +7,15 @@ import MediaMessage from './ChatMediaMessage/ChatMediaMessage';
 
 export interface ChatProps {
   close?: () => void;
-  userName: string;
+  currentUser: string;
+  otherUser: string;
   userRole: string;
   inputPlaceholder?: string;
   showHeader?: boolean;
+  userId: string;
 }
 
-const providerName = 'Dr. Josefina Santos';
-const patientName = 'Sarah Cooper';
-
-export const Chat = ({ inputPlaceholder, showHeader, userName, userRole }: ChatProps) => {
+export const Chat = ({ inputPlaceholder, showHeader, currentUser, userId , userRole, otherUser }: ChatProps) => {
 
   const messageListRef = useRef(null);
   const { messages, isChatWindowOpen, setIsChatWindowOpen, conversation } = useChatContext();
@@ -33,7 +32,7 @@ export const Chat = ({ inputPlaceholder, showHeader, userName, userRole }: ChatP
       <div className="relative flex flex-col items-center h-full w-full">
         {showHeader && (
           <div className="relative bg-primary text-white rounded-t p-2 text-center w-full">
-            Chat with {patientName}
+            Chat with {otherUser}
             {isChatWindowOpen && (
               <button
                 className="absolute right-3"
@@ -50,8 +49,8 @@ export const Chat = ({ inputPlaceholder, showHeader, userName, userRole }: ChatP
             if (message.type === 'text') {
               return <ChatMessage 
                         key={i} 
-                        isSelf={message.author === userName ? true : false} 
-                        name={message.author ===  userName ? userName : message.author} 
+                        isSelf={message.author === userId ? true : false} 
+                        name={(message.author === userId) && currentUser ? currentUser : otherUser} 
                         content={message.body}
                         role={userRole}
                     />
@@ -60,8 +59,8 @@ export const Chat = ({ inputPlaceholder, showHeader, userName, userRole }: ChatP
               return <MediaMessage
                       key={i} 
                       media={message.attachedMedia}
-                      isSelf={message.author === userName ? true : false}
-                      name={message.author ===  userName ? userName : message.author}
+                      isSelf={message.author === userId ? true : false}
+                      name={(message.author === userId) && currentUser ? currentUser : otherUser}
                     />
             }
           })}

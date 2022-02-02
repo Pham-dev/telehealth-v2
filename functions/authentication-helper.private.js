@@ -34,8 +34,8 @@ function isValidPassword(password, context) {
 }
 
 // --------------------------------------------------------
-function createUserToken(context, role, id, visitId) {
-    return createToken(context, 'app', { role, id, visitId }, USER_TOKEN_DURATION);
+function createUserToken(context, role, id, visitId, name) {
+    return createToken(context, 'app', { role, id, visitId, name }, USER_TOKEN_DURATION);
 }
 
 function createAppToken(context) {
@@ -116,12 +116,12 @@ function isValidRefreshToken(token, context) {
 
 function createToken(context, tokenType, payload, duration) {
   const { ACCOUNT_SID, TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET } = context;
-    return jwt.sign(payload, TWILIO_API_KEY_SECRET, {
-        expiresIn: duration,
-        audience: tokenType,
-        issuer: TWILIO_API_KEY_SID,
-        subject: ACCOUNT_SID,
-    });
+  return jwt.sign(payload, TWILIO_API_KEY_SECRET, {
+      expiresIn: duration,
+      audience: tokenType,
+      issuer: TWILIO_API_KEY_SID,
+      subject: ACCOUNT_SID,
+  });
 }
 
 function validateAndDecodeAppToken(context, event, roles) {

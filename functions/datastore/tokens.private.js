@@ -8,7 +8,8 @@ const MAX_ALLOWED_SESSION_DURATION = 14400;
 
 async function createToken(context, role, user) {
   const TWILIO_SYNC_SID = await getParam(context, 'TWILIO_SYNC_SID');
-  const token = createUserToken(context, role, user.id, user.visitId);
+  console.log("USER", user.name)
+  const token = createUserToken(context, role, user.id, user.visitId, user.name);
   passcode = token.split('.')[2];
   const client = context.getTwilioClient();
   await insertSyncMapItem(client, TWILIO_SYNC_SID, TOKENS_MAP, passcode, { token });
