@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {DEFAULT_VIDEO_CONSTRAINTS, PatientRoomState} from '../../../constants';
+import React, {useEffect, useState} from 'react';
+import {PatientRoomState} from '../../../constants';
 import { useVisitContext } from '../../../state/VisitContext';
 import useParticipants from '../../Base/VideoProvider/useParticipants/useParticipants';
 import useRoomState from '../../Base/VideoProvider/useRoomState/useRoomState';
@@ -16,12 +16,9 @@ import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/us
 import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/useLocalVideoToggle';
 import useLocalParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
 import { EndCallModal } from '../../EndCallModal';
-import {LocalAudioTrack, LocalDataTrack, LocalVideoTrack, Participant} from 'twilio-video';
 import { useRouter } from 'next/router';
 import { Icon } from '../../Icon';
-import useMediaStreamTrack
-  from "../../Base/ParticipantTracks/Publication/VideoTrack/useMediaStreamTrack/useMediaStreamTrack";
-import useDevices from "../../Base/VideoProvider/useDevices/useDevices";
+import {useToggleFacingMode} from "../../Base/VideoProvider/useToggleFacingMode/useToggleFacingMode";
 
 export interface VideoConsultationProps {}
 
@@ -49,31 +46,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     visitorParticipant: null
   });
 
-  const { localTracks }: { localTracks: (LocalAudioTrack | LocalVideoTrack | LocalDataTrack)[]} = useVideoContext();
-  const videoTrack = localTracks.find(track => track.kind === 'video' ) as LocalVideoTrack;
-  const mediaStreamTrack = useMediaStreamTrack(videoTrack);
-  const { videoInputDevices } = useDevices();
-  const [supportsFacingMode, setSupportsFacingMode] = useState(false);
-
-  const toggleFacingMode = useCallback(() => {
-    const newFacingMode = mediaStreamTrack?.getSettings().facingMode === 'user' ? 'environment' : 'user';
-    videoTrack?.restart({
-      ...(DEFAULT_VIDEO_CONSTRAINTS as {}),
-      facingMode: newFacingMode,
-    });
-  }, [mediaStreamTrack, videoTrack]);
-
-  useEffect(() => {
-    // The 'supportsFacingMode' variable determines if this component is rendered
-    // If 'facingMode' exists, we will set supportsFacingMode to true.
-    // However, if facingMode is ever undefined again (when the user unpublishes video), we
-    // won't set 'supportsFacingMode' to false. This prevents the icon from briefly
-    // disappearing when the user switches their front/rear camera.
-    const currentFacingMode = mediaStreamTrack?.getSettings().facingMode;
-    if (currentFacingMode && supportsFacingMode === false) {
-      setSupportsFacingMode(true);
-    }
-  }, [mediaStreamTrack, supportsFacingMode]);
+  const [flipCamera, flipCameraEnabled] = useToggleFacingMode();
 
   useEffect(() => {
     if (room) {
@@ -255,7 +228,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
               isMuted={!isAudioEnabled}
               isVideoStopped={!isVideoEnabled}
               addParticipant={toggleInviteModal}
-              flipCamera={(supportsFacingMode && videoInputDevices.length > 1) ? toggleFacingMode : null}
+              flipCamera={flipCameraEnabled ? flipCamera : null}
               toggleChat={() => {
                 setIsChatWindowOpen(!isChatWindowOpen)
                 // todo https://twilio-healthcare.atlassian.net/browse/THV2-15 temporary fix. Template needs to be rewritten
