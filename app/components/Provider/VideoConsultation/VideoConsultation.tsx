@@ -9,7 +9,7 @@ import { VideoControls } from '../../VideoControls';
 import { InviteParticipantPopover } from './InviteParticipantPopover';
 import { SettingsPopover } from './SettingsPopover';
 import { VideoParticipant } from './VideoParticipant';
-import { ProviderRoomState } from '../../../constants';
+import { ProviderRoomState, STORAGE_VISIT_KEY } from '../../../constants';
 import useChatContext from '../../Base/ChatProvider/useChatContext/useChatContext';
 import { useVisitContext } from '../../../state/VisitContext';
 import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/useLocalAudioToggle';
@@ -18,6 +18,8 @@ import { roomService } from '../../../services/roomService';
 import useSelectedParticipant from '../../Base/VideoProvider/useSelectedParticipant/useSelectedParticipant';
 import { RemoteParticipant } from 'twilio-video';
 import { EndCallModal } from '../../EndCallModal';
+import clientStorage from '../../../services/clientStorage';
+import { TelehealthVisit } from '../../../types';
 
 export interface VideoConsultationProps {}
 
@@ -35,6 +37,7 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   const { user } = useVisitContext();
   const { room, isRecording, toggleScreenShare } = useVideoContext();
   const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
+  const [visit, setVisit] = useState<TelehealthVisit>(null);
   const [callState, setCallState] = useState<ProviderRoomState>({
     patientName: null,
     providerName: null,
@@ -47,6 +50,13 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
   function toggleEndCallModal() {
     setEndCallModalVisible(!endCallModalVisible);
   }
+
+  useEffect(() => {
+    const getVisit = async () => {
+      setVisit(await clientStorage.getFromStorage(STORAGE_VISIT_KEY));
+    }
+    getVisit();
+  }, []);
 
   useEffect(() => {
     if (room) {
@@ -138,10 +148,12 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
         <div className="absolute bottom-0 right-10 max-w-[405px] w-full max-h-[400px] h-full">
           <Chat
             close={() => setIsChatWindowOpen(false)}
-            userName={user.name}
+            currentUser={visit.ehrProvider.name}
+            otherUser={visit.ehrPatient.name}
             userRole={user.role}
+            userId={user.id}
             showHeader
-            inputPlaceholder="Message Sarah Cooper"
+            inputPlaceholder={callState.patientName ?? "Send a message"}
           />
         </div>
       )}

@@ -18,6 +18,7 @@ import useLocalParticipantNetworkQualityLevel from '../../Base/VideoProvider/use
 import { EndCallModal } from '../../EndCallModal';
 import { Participant } from 'twilio-video';
 import { useRouter } from 'next/router';
+import { Icon } from '../../Icon';
 
 export interface VideoConsultationProps {}
 
@@ -138,14 +139,31 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                 />
               </div>
             </div>
-            <div className="flex-grow w-full">
+            <div className=" w-full flex-col">
+              <div className="relative flex justify-center bg-primary items-center w-full text-white">
+                Chat with {visit.ehrProvider.name}
+                <div className=" h-10 text-center pt-2 justify-evenly">
+                  {isChatWindowOpen && (
+                    <button
+                      className="absolute right-3"
+                      type="button"
+                      onClick={() => setIsChatWindowOpen(!isChatWindowOpen)}
+                    >
+                      <Icon name="close" />
+                    </button>
+                  )}
+                </div>
+              </div>
               <Chat
                 close={() => setIsChatWindowOpen(false)} 
-                userName={user.name} 
+                currentUser={visit.ehrPatient.name}
+                otherUser={visit.ehrProvider.name}
+                userId={user.id}
                 userRole={user.role} 
                 inputPlaceholder={`Message to ${visit.ehrProvider.name}`} 
               />
             </div>
+
           </>
         ) : (
           <>

@@ -5,7 +5,8 @@ import { Uris } from "./constants";
 type UserJwtToken = {    
     visitId?: string,
     role: string,
-    id: string
+    id: string,
+    name?: string
 }
 
 function authenticateVisitorOrPatient(passcode: string): Promise<PatientUser> {
@@ -23,7 +24,8 @@ function authenticateVisitorOrPatient(passcode: string): Promise<PatientUser> {
             ...tokenInfo,
             isAuthenticated: true,
             token: tokenResp.token,
-            name: tokenInfo.id
+            name: tokenInfo.name,
+            id: tokenInfo.id
         } as PatientUser;
     });
 }
@@ -43,7 +45,8 @@ function authenticatePractitioner(passcode: string): Promise<ProviderUser> {
             ...tokenInfo,
             isAuthenticated: true,
             token: tokenResp.token,
-            name: tokenInfo.id
+            name: tokenInfo.name,
+            id: tokenInfo.id
         } as ProviderUser;
     });
 }

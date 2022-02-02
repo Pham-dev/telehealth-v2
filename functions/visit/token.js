@@ -14,6 +14,8 @@ async function getPasscode(context, role, event, response) {
 
   const tokenData = await tokens.createToken(context, role, event);
   // Return token
+  console.log(tokenData);
+  console.log(event.name)
   response.setStatusCode(200);
   response.setBody(tokenData);
   return response;
