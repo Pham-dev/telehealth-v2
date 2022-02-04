@@ -31,21 +31,21 @@ const DashboardPage: TwilioPage = () => {
   const { user } = useVisitContext();
   const { connect: syncConnect, syncClient, onDemandStream } = useSyncContext();
 
-  // const fetchVisits = useCallback(async () => {
-  //   datastoreService.fetchAllTelehealthVisits(user)
-  //     .then(async allVisits => {
-  //       const onDemandVisits = allVisits.filter(
-  //         (visit, index, self) => 
-  //           visit.ehrAppointment.type === 'WALKIN' && 
-  //           index === self.findIndex(t => t.ehrPatient.phone === visit.ehrPatient.phone)
-  //         );
-  //       const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
-  //       setOnDemandQueue(onDemandVisits);
-  //       setVisitQueue(regularVisits);
-  //       setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
-  //     });
-  //   }, [user]
-  // ); 
+  const fetchVisits = useCallback(async () => {
+    datastoreService.fetchAllTelehealthVisits(user)
+      .then(async allVisits => {
+        const onDemandVisits = allVisits.filter(
+          (visit, index, self) => 
+            visit.ehrAppointment.type === 'WALKIN' && 
+            index === self.findIndex(t => t.ehrPatient.phone === visit.ehrPatient.phone)
+          );
+        const regularVisits = allVisits.filter(visit => visit.ehrAppointment.type !== 'WALKIN');
+        setOnDemandQueue(onDemandVisits);
+        setVisitQueue(regularVisits);
+        setVisitNext(onDemandVisits.length ? onDemandVisits[0] : regularVisits[0]);
+      });
+    }, [user]
+  ); 
 
   // Gets Sync token to utilize Sync API prior to video room
   // useEffect(() => {
@@ -62,45 +62,45 @@ const DashboardPage: TwilioPage = () => {
   //     })
   // }, [syncConnect]);
 
-  // useEffect(() => {
-  //   if (!mediaError) {
-  //     getAudioAndVideoTracks().catch(error => {
-  //       console.dir(error);
-  //       setMediaError(error);
-  //     });
-  //   }
-  // }, [getAudioAndVideoTracks, mediaError]);
+  useEffect(() => {
+    if (!mediaError) {
+      getAudioAndVideoTracks().catch(error => {
+        console.dir(error);
+        setMediaError(error);
+      });
+    }
+  }, [getAudioAndVideoTracks, mediaError]);
 
-  // useEffect(() => {
-  //   fetchVisits();
-  //   datastoreService.fetchAllContent(user)
-  //     .then(cArray => {         
-  //       setContentAvailable(cArray);
-  //       setContentAssigned(cArray.find((c) => {
-  //         c.provider_ids.some(e => e === user.id);
-  //       }));
-  //     });
-  // }, [fetchVisits, user]);
+  useEffect(() => {
+    fetchVisits();
+    datastoreService.fetchAllContent(user)
+      .then(cArray => {         
+        setContentAvailable(cArray);
+        setContentAssigned(cArray.find((c) => {
+          c.provider_ids.some(e => e === user.id);
+        }));
+      });
+  }, [fetchVisits, user]);
 
-  // useEffect(() => {
-  //   const publish = async (args: SyncStreamMessage) => {
-  //     if (args) {
-  //       console.log("message received", args);
-  //       // @ts-ignore
-  //       if (args.message.data.patientSyncToken) {
-  //         setIsNewVisit(true);
-  //       }
-  //       fetchVisits();
-  //     }
-  //   }
+  useEffect(() => {
+    const publish = async (args: SyncStreamMessage) => {
+      if (args) {
+        console.log("message received", args);
+        // @ts-ignore
+        if (args.message.data.patientSyncToken) {
+          setIsNewVisit(true);
+        }
+        fetchVisits();
+      }
+    }
 
-  //   if (syncClient && onDemandStream) {
-  //     onDemandStream.on('messagePublished', publish)
-  //     return () => {
-  //       onDemandStream.off('messagePublished', publish);
-  //     }
-  //   }
-  // }, [fetchVisits, onDemandStream, syncClient, user]);
+    if (syncClient && onDemandStream) {
+      onDemandStream.on('messagePublished', publish)
+      return () => {
+        onDemandStream.off('messagePublished', publish);
+      }
+    }
+  }, [fetchVisits, onDemandStream, syncClient, user]);
 
   return (
     <Layout>
