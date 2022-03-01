@@ -9,15 +9,14 @@ This section details the requirements for a successful deployment and installati
 
 The following prerequisites must be satisfied prior to installing the application.
 
-**Twilio account**
+**Twilio Flex Account**
 
 - Create a Twilio account by signing up [here](https://www.twilio.com/try-twilio)
-- Once the Twilio account is created,
-  please note the `ACCOUNT SID` and `AUTH TOKEN`
+- Once the Twilio account is created, go to the Flex console and create a Flex account which is a sub account.
   from the [Twilio console](https://console.twilio.com/) for use below
 - If you have multiple Twilio Projects under your account, make sure that you are logged into the Project that you want the application to be deployed to
 
-**Twilio phone number**
+**Twilio phone number: OPTIONAL**
 
 - After provisioning your Twilio account,
   you will need to [purchase a phone number](https://www.twilio.com/console/phone-numbers/incoming)
