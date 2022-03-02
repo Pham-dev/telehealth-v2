@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { PatientRoomState } from '../../../constants';
+import React, {useEffect, useState} from 'react';
+import {PatientRoomState} from '../../../constants';
 import { useVisitContext } from '../../../state/VisitContext';
 import useParticipants from '../../Base/VideoProvider/useParticipants/useParticipants';
 import useRoomState from '../../Base/VideoProvider/useRoomState/useRoomState';
@@ -16,8 +16,9 @@ import useLocalAudioToggle from '../../Base/VideoProvider/useLocalAudioToggle/us
 import useLocalVideoToggle from '../../Base/VideoProvider/useLocalVideoToggle/useLocalVideoToggle';
 import useLocalParticipantNetworkQualityLevel from '../../Base/VideoProvider/useLocalParticipantNetworkQualityLevel/useLocalParticipantNetworkQualityLevel';
 import { EndCallModal } from '../../EndCallModal';
-import { Participant } from 'twilio-video';
 import { useRouter } from 'next/router';
+import { Icon } from '../../Icon';
+import {useToggleFacingMode} from "../../Base/VideoProvider/useToggleFacingMode/useToggleFacingMode";
 
 export interface VideoConsultationProps {}
 
@@ -44,33 +45,35 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
     providerParticipant: null,
     visitorParticipant: null
   });
-  
-  useEffect(() => {
-    const disconnectFromRoom = (participant: Participant) => {
-      if (participant.identity === callState.providerParticipant.identity) {
-        room.disconnect();
-        router.push('/patient/visit-survey/');
-      }
-    }
-    if (room && callState.providerParticipant) {
-      room.on('participantDisconnected', disconnectFromRoom);
-      return () => {
-        room.off('participantDisconnected', disconnectFromRoom);
-      }
-    }
-  }, [room]);
-  
+
+  const [flipCamera, flipCameraEnabled] = useToggleFacingMode();
 
   useEffect(() => {
     if (room) {
+      const providerParticipant = participants[0];
+
       setCallState(prev => {
         return {
           ...prev,
           patientParticipant: room!.localParticipant,
-          providerParticipant: participants.find(p => p.identity != room!.localParticipant.identity),
+          providerParticipant: providerParticipant,
           visitorParticipant: participants[1]
         }
       })
+
+      const disconnectFromRoom = () => {
+        if (!callState.providerParticipant) {
+          room.disconnect();
+          router.push('/patient/visit-survey/');
+        }
+      }
+
+      if (room && providerParticipant) {
+        room.on('participantDisconnected', disconnectFromRoom);
+        return () => {
+          room.off('participantDisconnected', disconnectFromRoom);
+        }
+      }
     }
   }, [participants, room]);
 
@@ -134,18 +137,39 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
                   className="absolute left-4 bottom-3"
                   icon="chat_bubble"
                   variant={ButtonVariant.tertiary}
-                  onClick={() => setIsChatWindowOpen(!isChatWindowOpen)}
+                  onClick={() => {
+                    // todo https://twilio-healthcare.atlassian.net/browse/THV2-15 temporary fix. Template needs to be rewritten
+                    setIsChatWindowOpen(!isChatWindowOpen)
+                    toggleAudioEnabled()
+                  }}
                 />
               </div>
             </div>
-            <div className="flex-grow w-full">
+            <div className=" w-full flex-col">
+              <div className="relative flex justify-center bg-primary items-center w-full text-white">
+                Chat with {visit.ehrProvider.name}
+                <div className=" h-10 text-center pt-2 justify-evenly">
+                  {isChatWindowOpen && (
+                    <button
+                      className="absolute right-3"
+                      type="button"
+                      onClick={() => setIsChatWindowOpen(!isChatWindowOpen)}
+                    >
+                      <Icon name="close" />
+                    </button>
+                  )}
+                </div>
+              </div>
               <Chat
                 close={() => setIsChatWindowOpen(false)} 
-                userName={user.name} 
+                currentUser={visit.ehrPatient.name}
+                otherUser={visit.ehrProvider.name}
+                userId={user.id}
                 userRole={user.role} 
                 inputPlaceholder={`Message to ${visit.ehrProvider.name}`} 
               />
             </div>
+
           </>
         ) : (
           <>
@@ -199,19 +223,25 @@ export const VideoConsultation = ({}: VideoConsultationProps) => {
               )}
             </div>
 
-            <VideoControls
+            {!isChatWindowOpen &&<VideoControls
               containerClass="mb-5 bg-[#FFFFFF4A] rounded-lg"
               isMuted={!isAudioEnabled}
               isVideoStopped={!isVideoEnabled}
               addParticipant={toggleInviteModal}
-              flipCamera={() => setConnectionIssueModalVisible(true)}
-              toggleChat={() => setIsChatWindowOpen(!isChatWindowOpen)}
+              flipCamera={flipCameraEnabled ? flipCamera : null}
+              toggleChat={() => {
+                setIsChatWindowOpen(!isChatWindowOpen)
+                // todo https://twilio-healthcare.atlassian.net/browse/THV2-15 temporary fix. Template needs to be rewritten
+                toggleAudioEnabled()
+              }}
               toggleVideo={toggleVideoEnabled}
               toggleAudio={toggleAudioEnabled}
               toggleEndCallModal={toggleEndCallModal}
-            />
+            />}
           </>
-        )):(<></>)}
+        )):(<>
+          <h1 className="text-white">Something went wrong</h1>
+          </>)}
       </div>
       <ConnectionIssueModal
         close={() => setConnectionIssueModalVisible(false)}

@@ -42,6 +42,7 @@ export const NextPatientCard = ({ className, visitNext }: NextPatientCardProps) 
 
   useEffect(() => {
     if (visitNext) {
+      clientStorage.saveToStorage(STORAGE_VISIT_KEY, visitNext);
       const now : Date = new Date();
       const diffSeconds = Math.trunc((now.getTime() - visitNext.ehrAppointment.start_datetime_ltz.getTime())/1000);
       console.log(diffSeconds, Math.trunc(diffSeconds/60/60), Math.trunc(diffSeconds/60), Math.trunc(diffSeconds % 60));
