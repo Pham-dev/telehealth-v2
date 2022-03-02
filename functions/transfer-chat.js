@@ -19,10 +19,31 @@ exports.handler = JWEValidator(async function (context, event, callback) {
   // parse data form the incoming http request
   const originalTaskSid = event.taskSid;
   const { targetSid } = event;
+  // don't need this because we don't want to ignore the same worker.
   //const { workerName } = event;
 
+  const workspaces = await client.taskrouter.workspaces
+    .list()
+    .then(workspaces => workspaces);
+  const flexWorkspace = workspaces.find(workspace => workspace.friendlyName === 'Flex Task Assignment');
+  if (!flexWorkspace) {
+    response.setBody({error: "Did not find Flex workspace."});
+    response.setStatusCode(400);
+    return callback(null, response);
+  }
+  const flexWorkspaceSid = flexWorkspace.sid;
+
+  // Now get the correct transfer to Nurse workflow Sid
+  const workflows = await client.taskrouter.workspaces(flexWorkspaceSid)
+    .workflows
+    .list()
+    .then(wf => wf);
+  //console.log(workflows);
+  const nurseTransferWF = workflows.find(workflow => workflow.friendlyName === 'Transfer to Nurse Educator');
+  const nurseTransferWFSid = nurseTransferWF.sid;
+
   // retrieve attributes of the original task
-  const originalTask = await client.taskrouter.workspaces(context.TWILIO_WORKSPACE_SID).tasks(originalTaskSid).fetch();
+  const originalTask = await client.taskrouter.workspaces(flexWorkspaceSid).tasks(originalTaskSid).fetch();
   let newAttributes = JSON.parse(originalTask.attributes);
 
   /*
@@ -62,8 +83,8 @@ exports.handler = JWEValidator(async function (context, event, callback) {
   }
 
   // create New task
-  const newTask = await client.taskrouter.workspaces(context.TWILIO_WORKSPACE_SID).tasks.create({
-    workflowSid: context.TWILIO_CHAT_TRANSFER_WORKFLOW_SID,
+  const newTask = await client.taskrouter.workspaces(flexWorkspaceSid).tasks.create({
+    workflowSid: nurseTransferWFSid,
     taskChannel: originalTask.taskChannelUniqueName,
     attributes: JSON.stringify(newAttributes),
   });
@@ -78,7 +99,7 @@ exports.handler = JWEValidator(async function (context, event, callback) {
 
   // update task and remove channelSid
   await client.taskrouter
-    .workspaces(context.TWILIO_WORKSPACE_SID)
+    .workspaces(flexWorkspaceSid)
     .tasks(originalTaskSid)
     .update({
       attributes: JSON.stringify(originalTaskAttributes),
@@ -86,7 +107,7 @@ exports.handler = JWEValidator(async function (context, event, callback) {
 
   // Close the original Task
   await client.taskrouter
-    .workspaces(context.TWILIO_WORKSPACE_SID)
+    .workspaces(flexWorkspaceSid)
     .tasks(originalTaskSid)
     .update({ assignmentStatus: 'completed', reason: 'task transferred' });
 
